@@ -7,82 +7,143 @@ export default function Home() {
   const [apiKey, setApiKey] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // This function talks to your Go Backend
+  const [message, setMessage] = useState("");
+  const [chatResponse, setChatResponse] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const backendUrl = "https://nexusgateway.onrender.com"; // Your Live Server
+
+  // 1. REGISTER
   const handleRegister = async () => {
+    if(!email) return alert("Enter an email!");
     setLoading(true);
     try {
-      const res = await fetch("https://nexusgateway.onrender.com/api/register", {
+      const res = await fetch(`${backendUrl}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (res.ok) {
-        setApiKey(data.api_key);
-      } else {
-        alert("Error: " + data);
-      }
+      if (res.ok) setApiKey(data.api_key);
+      else alert("Error: " + JSON.stringify(data));
     } catch (err) {
-      alert("Failed to connect to server");
+      alert("Server error");
     }
     setLoading(false);
   };
 
+  // 2. CHAT
+  const handleChat = async () => {
+    if (!apiKey) return alert("Enter API Key first");
+    if (!message) return;
+    setChatLoading(true);
+    try {
+      const res = await fetch(`${backendUrl}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+        body: JSON.stringify({ message }),
+      });
+      const data = await res.json();
+      
+      if (res.status === 402) {
+        setChatResponse("⛔ Quota Exceeded. You need to upgrade.");
+      } else if (res.ok) {
+        setChatResponse(data.choices?.[0]?.message?.content || "No response");
+      } else {
+        setChatResponse("Error: " + JSON.stringify(data));
+      }
+    } catch (err) {
+      setChatResponse("Connection Failed");
+    }
+    setChatLoading(false);
+  };
+
+  // 3. UPGRADE (Stripe)
+  const handleUpgrade = async () => {
+    if (!apiKey) return alert("Enter API Key first");
+    try {
+      const res = await fetch(`${backendUrl}/api/checkout`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${apiKey}` }
+      });
+      const data = await res.json();
+      if (data.checkout_url) window.location.href = data.checkout_url;
+      else alert("Checkout failed");
+    } catch (err) {
+      alert("Payment Error");
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 font-sans">
-      <div className="max-w-md w-full bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-2xl">
-        <h1 className="text-3xl font-bold text-center mb-2 text-blue-500">
-          Nexus Gateway
-        </h1>
-        <p className="text-gray-400 text-center mb-8">
-          The AI Semantic Caching Layer
-        </p>
+    <div className="main-wrapper">
+      
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h1>Nexus Gateway</h1>
+        <p>High-Performance AI Semantic Caching Layer</p>
+      </div>
 
-        {/* Status Cards */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="bg-gray-800 p-4 rounded-lg text-center border border-gray-700">
-            <p className="text-green-400 text-2xl font-bold">$0.00</p>
-            <p className="text-xs text-gray-500 uppercase mt-1">Saved</p>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg text-center border border-gray-700">
-            <p className="text-purple-400 text-2xl font-bold">0</p>
-            <p className="text-xs text-gray-500 uppercase mt-1">Hits</p>
-          </div>
-        </div>
-
-        {/* Input Form */}
+      {/* SECTION 1: AUTH */}
+      <div className="glass-card">
+        <h2>🔑 1. Get Access</h2>
         {!apiKey ? (
-          <div className="flex gap-2">
-            <input
-              type="email"
-              placeholder="Enter email to get API Key"
-              className="flex-1 bg-black border border-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+          <div className="input-group">
+            <input 
+              placeholder="Enter your email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
             />
-            <button
-              onClick={handleRegister}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-all"
-            >
+            <button className="btn btn-primary" onClick={handleRegister} disabled={loading}>
               {loading ? "..." : "Get Key"}
             </button>
           </div>
         ) : (
-          <div className="bg-green-900/30 border border-green-800 p-4 rounded-lg">
-            <p className="text-green-400 text-sm mb-1">Your API Key:</p>
-            <code className="block bg-black p-2 rounded text-green-300 break-all text-sm">
-              {apiKey}
-            </code>
-            <button 
-              onClick={() => {navigator.clipboard.writeText(apiKey); alert("Copied!");}}
-              className="mt-3 text-xs text-gray-400 hover:text-white underline"
-            >
-              Copy to Clipboard
-            </button>
+          <div>
+            <div className="code-block">{apiKey}</div>
+            <p style={{fontSize: '0.8rem', color: '#4ade80'}}>Key Generated Successfully!</p>
           </div>
         )}
       </div>
+
+      {/* SECTION 2: CHAT */}
+      <div className="glass-card">
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+            <h2>🤖 2. Test AI Chat</h2>
+            {apiKey && (
+                <button className="btn btn-secondary" style={{padding:'5px 10px', fontSize:'0.8rem'}} onClick={handleUpgrade}>
+                    ⚡ Upgrade to Pro
+                </button>
+            )}
+        </div>
+
+        <div style={{marginBottom: '15px'}}>
+            <input 
+              style={{width: '93%'}}
+              placeholder="Paste API Key here (if you lost it)..." 
+              value={apiKey} 
+              onChange={(e) => setApiKey(e.target.value)} 
+            />
+        </div>
+
+        <div className="input-group">
+          <input 
+            placeholder="Ask AI something..." 
+            value={message} 
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleChat()} 
+          />
+          <button className="btn btn-primary" onClick={handleChat} disabled={chatLoading}>
+            {chatLoading ? "..." : "Send"}
+          </button>
+        </div>
+
+        {chatResponse && (
+          <div className="response-box">
+            {chatResponse}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }
