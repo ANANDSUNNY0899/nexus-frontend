@@ -7,11 +7,13 @@ export default function Home() {
   const [apiKey, setApiKey] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Chat State
   const [message, setMessage] = useState("");
+  const [model, setModel] = useState("gpt-3.5-turbo"); // <--- NEW STATE
   const [chatResponse, setChatResponse] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
 
-  const backendUrl = "https://nexusgateway.onrender.com"; // Your Live Server
+  const backendUrl = "https://nexusgateway.onrender.com"; 
 
   // 1. REGISTER
   const handleRegister = async () => {
@@ -41,7 +43,8 @@ export default function Home() {
       const res = await fetch(`${backendUrl}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-        body: JSON.stringify({ message }),
+        // NEW: We send the selected model
+        body: JSON.stringify({ message, model: model }),
       });
       const data = await res.json();
       
@@ -58,7 +61,7 @@ export default function Home() {
     setChatLoading(false);
   };
 
-  // 3. UPGRADE (Stripe)
+  // 3. UPGRADE
   const handleUpgrade = async () => {
     if (!apiKey) return alert("Enter API Key first");
     try {
@@ -77,7 +80,6 @@ export default function Home() {
   return (
     <div className="main-wrapper">
       
-      {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
         <h1>Nexus Gateway</h1>
         <p>High-Performance AI Semantic Caching Layer</p>
@@ -119,10 +121,31 @@ export default function Home() {
         <div style={{marginBottom: '15px'}}>
             <input 
               style={{width: '93%'}}
-              placeholder="Paste API Key here (if you lost it)..." 
+              placeholder="Paste API Key here..." 
               value={apiKey} 
               onChange={(e) => setApiKey(e.target.value)} 
             />
+        </div>
+
+        {/* NEW: MODEL SELECTOR */}
+        <div style={{marginBottom: '15px'}}>
+            <label style={{fontSize: '0.8rem', color:'#94a3b8', display:'block', marginBottom:'5px'}}>SELECT MODEL</label>
+            <select 
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                style={{
+                    width: '100%', 
+                    padding: '10px', 
+                    background: '#000', 
+                    color: 'white', 
+                    border: '1px solid rgba(255,255,255,0.125)', 
+                    borderRadius: '8px'
+                }}
+            >
+                <option value="gpt-3.5-turbo">OpenAI GPT-3.5 (Fast)</option>
+                <option value="gpt-4">OpenAI GPT-4 (Smart)</option>
+                <option value="claude-3-opus-20240229">Anthropic Claude 3 (Pro)</option>
+            </select>
         </div>
 
         <div className="input-group">
