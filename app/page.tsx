@@ -1,6 +1,8 @@
+
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 // Import Charts
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -15,11 +17,13 @@ export default function Home() {
   const [model, setModel] = useState("gpt-3.5-turbo");
   const [chatResponse, setChatResponse] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [quotaExceeded, setQuotaExceeded] = useState(false); // <--- NEW STATE
 
   // Stats State
   const [stats, setStats] = useState({ total: 0, hits: 0, graph: [] });
 
   const backendUrl = "https://nexusgateway.onrender.com"; 
+  const billingRef = useRef<null | HTMLDivElement>(null); // To scroll to billing
 
   // --- EFFECT: LOAD STATS ---
   useEffect(() => {
@@ -48,7 +52,10 @@ export default function Home() {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (res.ok) setApiKey(data.api_key);
+      if (res.ok) {
+        setApiKey(data.api_key);
+        setQuotaExceeded(false); // Reset error if they get a new key
+      }
       else alert("Error: " + JSON.stringify(data));
     } catch (err) {
       alert("Server error");
@@ -60,24 +67,38 @@ export default function Home() {
   const handleChat = async () => {
     if (!apiKey) return alert("Enter API Key first");
     if (!message) return;
+    
     setChatLoading(true);
+    setQuotaExceeded(false);
+    
     try {
       const res = await fetch(`${backendUrl}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
         body: JSON.stringify({ message, model: model }),
       });
+      
+      // FIX: Check for 402 BEFORE parsing JSON
+      if (res.status === 402) {
+        setChatResponse(" Quota Exceeded. Please Upgrade your plan below.");
+        setQuotaExceeded(true);
+        // Scroll to billing
+        setTimeout(() => billingRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        setChatLoading(false);
+        return; // Stop here! Don't try to read JSON.
+      }
+
+      // If not 402, we assume it's JSON (Success or other error)
       const data = await res.json();
       
-      if (res.status === 402) {
-        setChatResponse("⛔ Quota Exceeded. Please Upgrade your plan below.");
-      } else if (res.ok) {
+      if (res.ok) {
         setChatResponse(data.choices?.[0]?.message?.content || "No response");
       } else {
         setChatResponse("Error: " + JSON.stringify(data));
       }
     } catch (err) {
-      setChatResponse("Connection Failed");
+      console.error(err);
+      setChatResponse("Connection Failed. (Is the backend running?)");
     }
     setChatLoading(false);
   };
@@ -175,22 +196,44 @@ export default function Home() {
         )}
       </div>
 
-      {/* BILLING SECTION (Visible when Key is present) */}
+      {/* BILLING SECTION (Dynamic Highlighting) */}
       {apiKey && (
-        <div className="glass-card" style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderLeft: '4px solid #f43f5e'}}>
+        <div 
+            ref={billingRef} // Target for auto-scroll
+            className="glass-card" 
+            style={{
+                display:'flex', 
+                justifyContent:'space-between', 
+                alignItems:'center', 
+                // Change border color to RED if quota exceeded
+                borderLeft: quotaExceeded ? '4px solid #ef4444' : '4px solid #f43f5e',
+                boxShadow: quotaExceeded ? '0 0 20px rgba(239, 68, 68, 0.4)' : 'none',
+                transition: 'all 0.3s ease'
+            }}
+        >
             <div>
                 <h2 style={{border:'none', marginBottom:'5px', fontSize:'1.1rem'}}>Current Plan</h2>
-                <p style={{fontSize:'0.8rem', color:'#94a3b8'}}>Free Tier (100 Requests)</p>
+                <p style={{fontSize:'0.8rem', color: quotaExceeded ? '#ef4444' : '#94a3b8'}}>
+                    {quotaExceeded ? "⚠️ LIMIT REACHED" : "Free Tier (100 Requests)"}
+                </p>
             </div>
-            <button className="btn btn-secondary" onClick={handleUpgrade}>
-                ⚡ Upgrade to Pro
+            <button 
+                className="btn" 
+                style={{
+                    backgroundColor: quotaExceeded ? '#ef4444' : '#f43f5e',
+                    color: 'white',
+                    animation: quotaExceeded ? 'pulse 2s infinite' : 'none'
+                }}
+                onClick={handleUpgrade}
+            >
+                {quotaExceeded ? "🔓 Unlock Pro Now" : "⚡ Upgrade to Pro"}
             </button>
         </div>
       )}
 
       {/* CHAT SECTION */}
       <div className="glass-card">
-        <h2>🤖 2. Test AI Chat</h2>
+        <h2> 2. Test AI Chat</h2>
 
         <div style={{marginBottom: '15px'}}>
             <input 
@@ -217,13 +260,11 @@ export default function Home() {
             </select>
         </div>
 
-        {/* UPDATED INPUT GROUP WITH TEXTAREA */}
         <div className="input-group" style={{ alignItems: 'flex-start' }}>
           <textarea 
             placeholder="Ask AI something..." 
             value={message} 
             onChange={(e) => setMessage(e.target.value)}
-            // LOGIC: Enter = Send, Shift+Enter = Newline
             onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault(); 
@@ -257,7 +298,11 @@ export default function Home() {
         </div>
 
         {chatResponse && (
-          <div className="response-box">
+          <div className="response-box" style={{
+              // Make error red
+              borderColor: chatResponse.includes("Quota") ? '#ef4444' : 'transparent',
+              color: chatResponse.includes("Quota") ? '#ef4444' : '#e2e8f0'
+          }}>
             {chatResponse}
           </div>
         )}
