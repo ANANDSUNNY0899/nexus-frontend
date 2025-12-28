@@ -217,14 +217,41 @@ export default function Home() {
             </select>
         </div>
 
-        <div className="input-group">
-          <input 
+        {/* UPDATED INPUT GROUP WITH TEXTAREA */}
+        <div className="input-group" style={{ alignItems: 'flex-start' }}>
+          <textarea 
             placeholder="Ask AI something..." 
             value={message} 
             onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleChat()} 
+            // LOGIC: Enter = Send, Shift+Enter = Newline
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault(); 
+                    handleChat(); 
+                }
+            }}
+            style={{
+                flex: 1,
+                background: '#000',
+                border: '1px solid #374151',
+                color: 'white',
+                padding: '12px',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                outline: 'none',
+                resize: 'none',
+                minHeight: '50px',
+                maxHeight: '150px',
+                overflowY: 'auto'
+            }}
+            rows={1}
           />
-          <button className="btn btn-primary" onClick={handleChat} disabled={chatLoading}>
+          <button 
+            className="btn btn-primary" 
+            onClick={handleChat} 
+            disabled={chatLoading}
+            style={{ height: '50px' }}
+          >
             {chatLoading ? "..." : "Send"}
           </button>
         </div>
@@ -236,22 +263,23 @@ export default function Home() {
         )}
       </div>
 
+      {/* FOOTER */}
       <footer style={{
-    textAlign:'center', 
-    marginTop:'60px', 
-    padding:'20px', 
-    borderTop: '1px solid rgba(255,255,255,0.1)',
-    color:'#64748b', 
-    fontSize:'0.8rem',
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '20px'
-}}>
-    <span>© 2025 Nexus Gateway Inc.</span>
-    <a href="https://github.com/ANANDSUNNY0899" target="_blank" className="hover:text-white transition-colors">GitHub</a>
-    <a href="/docs" className="hover:text-white transition-colors">Documentation</a>
-    <a href="mailto:support@nexusgateway.com" className="hover:text-white transition-colors">Support</a>
-</footer>
+        textAlign:'center', 
+        marginTop:'60px', 
+        padding:'20px', 
+        borderTop: '1px solid rgba(255,255,255,0.1)',
+        color:'#64748b', 
+        fontSize:'0.8rem',
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '20px'
+      }}>
+        <span>© 2025 Nexus Gateway Inc.</span>
+        <a href="https://github.com/ANANDSUNNY0899" target="_blank" className="hover:text-white transition-colors">GitHub</a>
+        <a href="/docs" className="hover:text-white transition-colors">Documentation</a>
+        <a href="mailto:support@nexusgateway.com" className="hover:text-white transition-colors">Support</a>
+      </footer>
 
     </div>
   );
