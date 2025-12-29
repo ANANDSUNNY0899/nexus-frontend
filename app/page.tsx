@@ -231,6 +231,29 @@ export default function Home() {
         </div>
       )}
 
+      {/* SDK PROMOTION SECTION */}
+      <div className="glass-card" style={{borderLeft: '4px solid #3b82f6'}}>
+        <h2 style={{border:'none', marginBottom:'10px'}}>📦 Developers: Use the Python SDK</h2>
+        <p style={{fontSize:'0.9rem', color:'#94a3b8', marginBottom:'15px'}}>
+            Integrate Nexus into your Python apps in 3 lines of code.
+        </p>
+        
+        <div className="code-block" style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+            <span>pip install nexus-gateway</span>
+            <button 
+                onClick={() => {navigator.clipboard.writeText("pip install nexus-gateway"); alert("Copied!");}}
+                style={{background:'none', border:'none', cursor:'pointer', color:'#60a5fa'}}
+            >
+                📋
+            </button>
+        </div>
+        
+        <a href="https://pypi.org/project/nexus-gateway/" target="_blank" style={{fontSize:'0.8rem', color:'#60a5fa', marginTop:'10px', display:'block'}}>
+            View on PyPI →
+        </a>
+      </div>
+      
+
       {/* CHAT SECTION */}
       <div className="glass-card">
         <h2> 2. Test AI Chat</h2>
