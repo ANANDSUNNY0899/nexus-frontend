@@ -63,44 +63,71 @@ export default function Home() {
     setLoading(false);
   };
 
-  // 2. Send Chat Message
+
+  // 2. Send Chat Message (Improved Logic)
   const handleChat = async () => {
     if (!apiKey) return alert("Enter API Key first");
     if (!message) return;
     
     setChatLoading(true);
+    setChatResponse(""); // Clear previous
     setQuotaExceeded(false);
-    
+
     try {
-      const res = await fetch(`${backendUrl}/api/chat`, {
+      const res = await fetch(`${backendUrl}/api/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
         body: JSON.stringify({ message, model: model }),
       });
-      
-      // FIX: Check for 402 BEFORE parsing JSON
+
       if (res.status === 402) {
-        setChatResponse(" Quota Exceeded. Please Upgrade your plan below.");
+        setChatResponse("⛔ Quota Exceeded. Upgrade below.");
         setQuotaExceeded(true);
-        // Scroll to billing
         setTimeout(() => billingRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-        setChatLoading(false);
-        return; // Stop here! Don't try to read JSON.
+        return; // Button will reset in 'finally' block
       }
 
-      // If not 402, we assume it's JSON (Success or other error)
-      const data = await res.json();
-      
-      if (res.ok) {
-        setChatResponse(data.choices?.[0]?.message?.content || "No response");
-      } else {
-        setChatResponse("Error: " + JSON.stringify(data));
+      if (!res.body) return;
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let fullText = "";
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        
+        if (value) {
+          const chunkValue = decoder.decode(value);
+          const lines = chunkValue.split("\n").filter(line => line.trim() !== "");
+          
+          for (const line of lines) {
+            if (line.includes("[DONE]")) return; 
+            
+            if (line.startsWith("data: ")) {
+              try {
+                const jsonStr = line.replace("data: ", "");
+                const data = JSON.parse(jsonStr);
+                const content = data.choices?.[0]?.delta?.content || "";
+                
+                fullText += content;
+                setChatResponse(fullText);
+              } catch (e) {
+                // Ignore parse errors for partial chunks
+              }
+            }
+          }
+        }
       }
+
     } catch (err) {
       console.error(err);
-      setChatResponse("Connection Failed. (Is the backend running?)");
+      setChatResponse("Connection Failed.");
+    } finally {
+      // <--- THIS IS THE FIX --->
+      // This runs ALWAYS, ensuring the button goes back to "Send" immediately
+      setChatLoading(false);
     }
-    setChatLoading(false);
   };
 
   // 3. Upgrade Plan
