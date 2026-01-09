@@ -41,3 +41,25 @@ It connects to the Go/Redis backend to display live data and handles user authen
 ```bash
 git clone https://github.com/ANANDSUNNY0899/nexus-frontend.git
 cd nexus-frontend
+```
+### 2. Install Dependencies
+```bash
+npm install
+```
+### 3. Run Development Server
+```bash
+npm run dev
+```
+
+Open http://localhost:3000 with your browser to see the result.
+
+
+## Tech Stack
+
+    Framework: Next.js 14 (App Router)
+    Styling: Tailwind CSS
+    Language: TypeScript
+    Charts: Recharts
+    Deployment: Vercel
+
+Built with ❤️ by Sunny Anand
