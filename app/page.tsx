@@ -539,26 +539,51 @@ export default function Home() {
   return (
     <div className="main-wrapper">
       
+      {/* HEADER */}
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
         <h1 style={{fontSize: '2.5rem', marginBottom:'5px'}}>Nexus Gateway</h1>
         <p style={{color:'#94a3b8', marginBottom:'20px'}}>High-Performance AI Semantic Caching Layer</p>
         
-        <a href="/docs" style={{textDecoration:'none'}}>
-            <button className="btn" style={{
-                background: 'rgba(255, 255, 255, 0.05)', 
-                border: '1px solid rgba(255,255,255,0.1)', 
-                color: '#e2e8f0', 
-                fontSize: '0.9rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 20px'
-            }}>
-                <span> Read Documentation</span>
-                <span style={{opacity:0.5}}>→</span>
-            </button>
-        </a>
+        {/* BUTTON GROUP */}
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            
+            {/* Docs Button */}
+            <a href="/docs" style={{textDecoration:'none'}}>
+                <button className="btn" style={{
+                    background: 'rgba(255, 255, 255, 0.05)', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    color: '#e2e8f0', 
+                    fontSize: '0.9rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 20px'
+                }}>
+                    <span>Read Documentation</span>
+                </button>
+            </a>
+
+            {/* Logs Button */}
+            <a href="/logs" style={{textDecoration:'none'}}>
+                <button className="btn" style={{
+                    background: 'rgba(167, 139, 250, 0.1)', // Purple Tint
+                    border: '1px solid rgba(167, 139, 250, 0.2)', 
+                    color: '#d8b4fe', 
+                    fontSize: '0.9rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 20px'
+                }}>
+                    <span>🔍 Inspect Logs</span>
+                </button>
+            </a>
+
+        </div>
       </div>
+
+    
+      
 
       {/* STATS SECTION */}
       <div className="grid grid-cols-2 gap-4 mb-6">
