@@ -385,7 +385,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 // Import Charts
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -406,10 +406,10 @@ export default function Home() {
   const [stats, setStats] = useState({ total: 0, hits: 0, graph: [] });
 
   const backendUrl = "https://nexusgateway.onrender.com"; 
-  const billingRef = useRef<null | HTMLDivElement>(null);
+  const billingRef = useRef<null | HTMLDivElement>(null); // To scroll to billing
 
-  // --- HELPER: FETCH STATS ---
-  const fetchStats = useCallback(() => {
+  // --- EFFECT: LOAD STATS ---
+  useEffect(() => {
     fetch(`${backendUrl}/api/stats`)
       .then(res => res.json())
       .then(data => {
@@ -421,14 +421,6 @@ export default function Home() {
       })
       .catch(err => console.log("Stats error", err));
   }, []);
-
-  // --- EFFECT: LOAD STATS ON START ---
-  useEffect(() => {
-    fetchStats();
-    // Optional: Auto-refresh every 10 seconds
-    const interval = setInterval(fetchStats, 10000);
-    return () => clearInterval(interval);
-  }, [fetchStats]);
 
   // --- ACTIONS ---
 
@@ -445,7 +437,7 @@ export default function Home() {
       const data = await res.json();
       if (res.ok) {
         setApiKey(data.api_key);
-        setQuotaExceeded(false);
+        setQuotaExceeded(false); // Reset error if they get a new key
       }
       else alert("Error: " + JSON.stringify(data));
     } catch (err) {
@@ -454,13 +446,14 @@ export default function Home() {
     setLoading(false);
   };
 
-  // 2. Send Chat Message
+
+  // 2. Send Chat Message (The Working Logic)
   const handleChat = async () => {
     if (!apiKey) return alert("Enter API Key first");
     if (!message) return;
     
     setChatLoading(true);
-    setChatResponse(""); 
+    setChatResponse(""); // Clear previous
     setQuotaExceeded(false);
 
     try {
@@ -474,7 +467,7 @@ export default function Home() {
         setChatResponse("⛔ Quota Exceeded. Upgrade below.");
         setQuotaExceeded(true);
         setTimeout(() => billingRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-        return;
+        return; // Button will reset in 'finally' block
       }
 
       if (!res.body) return;
@@ -492,35 +485,40 @@ export default function Home() {
           const lines = chunkValue.split("\n").filter(line => line.trim() !== "");
           
           for (const line of lines) {
-            if (line.includes("[DONE]")) return; 
+            // Check for explicit stop signal
+            if (line.includes("[DONE]")) {
+                done = true;
+                break;
+            }
             
             if (line.startsWith("data: ")) {
               try {
                 const jsonStr = line.replace("data: ", "");
                 const data = JSON.parse(jsonStr);
                 const content = data.choices?.[0]?.delta?.content || "";
+                
                 fullText += content;
                 setChatResponse(fullText);
-              } catch (e) { }
+              } catch (e) {
+                // Ignore parse errors for partial chunks
+              }
             }
           }
         }
       }
-      // UPDATE STATS AFTER CHAT
-      fetchStats(); 
 
     } catch (err) {
       console.error(err);
       setChatResponse("Connection Failed.");
     } finally {
+      // This ensures the button ALWAYS resets
       setChatLoading(false);
-      fetchStats();
     }
   };
 
   // 3. Upgrade Plan
   const handleUpgrade = async () => {
-    if (!apiKey) return alert("Enter API Key first");
+    if (!apiKey) return alert("Enter API Key first (Step 1)");
     try {
       const res = await fetch(`${backendUrl}/api/checkout`, {
         method: "POST",
@@ -534,6 +532,7 @@ export default function Home() {
     }
   };
 
+  // Calculate Money
   const moneySaved = (stats.hits * 0.002).toFixed(4);
 
   return (
@@ -544,7 +543,7 @@ export default function Home() {
         <h1 style={{fontSize: '2.5rem', marginBottom:'5px'}}>Nexus Gateway</h1>
         <p style={{color:'#94a3b8', marginBottom:'20px'}}>High-Performance AI Semantic Caching Layer</p>
         
-        {/* BUTTON GROUP */}
+        {/* BUTTON GROUP (Docs + Logs) */}
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
             
             {/* Docs Button */}
@@ -559,7 +558,7 @@ export default function Home() {
                     gap: '8px',
                     padding: '8px 20px'
                 }}>
-                    <span>Read Documentation</span>
+                    <span> Read Documentation</span>
                 </button>
             </a>
 
@@ -582,9 +581,6 @@ export default function Home() {
         </div>
       </div>
 
-    
-      
-
       {/* STATS SECTION */}
       <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="glass-card" style={{padding: '15px', textAlign:'center'}}>
@@ -599,7 +595,7 @@ export default function Home() {
 
       {/* FIXED CHART SECTION */}
       <div className="glass-card" style={{marginBottom: '30px', paddingBottom: '20px'}}>
-        <h2 style={{fontSize: '0.9rem', marginBottom: '10px', border: 'none'}}>Last 24 Hours Traffic</h2>
+        <h2 style={{fontSize: '0.9rem', marginBottom: '10px', border: 'none'}}>Live Traffic (Last 60 Mins)</h2>
         {/* Explicit Height Container to Fix Recharts Error */}
         <div style={{width: '100%', height: '250px'}}>
             <ResponsiveContainer width="100%" height="100%">
@@ -614,7 +610,6 @@ export default function Home() {
             </ResponsiveContainer>
         </div>
       </div>
-
 
       {/* AUTH SECTION */}
       <div className="glass-card">
@@ -638,15 +633,16 @@ export default function Home() {
         )}
       </div>
 
-      {/* BILLING SECTION */}
+      {/* BILLING SECTION (Dynamic Highlighting) */}
       {apiKey && (
         <div 
-            ref={billingRef}
+            ref={billingRef} // Target for auto-scroll
             className="glass-card" 
             style={{
                 display:'flex', 
                 justifyContent:'space-between', 
                 alignItems:'center', 
+                // Change border color to RED if quota exceeded
                 borderLeft: quotaExceeded ? '4px solid #ef4444' : '4px solid #f43f5e',
                 boxShadow: quotaExceeded ? '0 0 20px rgba(239, 68, 68, 0.4)' : 'none',
                 transition: 'all 0.3s ease'
@@ -674,7 +670,7 @@ export default function Home() {
 
       {/* SDK PROMOTION SECTION */}
       <div className="glass-card" style={{marginTop: '20px', borderLeft: '4px solid #3b82f6'}}>
-        <h2 style={{border:'none', marginBottom:'10px', fontSize:'1rem'}}>📦 Developers: Use the Python SDK</h2>
+        <h2 style={{border:'none', marginBottom:'10px', fontSize:'1rem'}}> Developers: Use the Python SDK</h2>
         <p style={{fontSize:'0.9rem', color:'#94a3b8', marginBottom:'15px'}}>
             Integrate Nexus into your Python apps in 3 lines of code.
         </p>
@@ -693,6 +689,7 @@ export default function Home() {
             View on PyPI →
         </a>
       </div>
+      
 
       {/* CHAT SECTION */}
       <div className="glass-card">
@@ -754,26 +751,15 @@ export default function Home() {
             className="btn btn-primary" 
             onClick={handleChat} 
             disabled={chatLoading}
-            style={{ 
-                height: '50px',
-                backgroundColor: chatLoading ? '#4b5563' : '#4f46e5',
-                color: 'white',
-                cursor: chatLoading ? 'not-allowed' : 'pointer',
-                border: 'none',
-                padding: '0 25px',
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                transition: 'all 0.2s'
-            }}
+            style={{ height: '50px' }}
           >
-            {chatLoading ? (
-                <div style={{width:'20px', height:'20px', border:'3px solid #fff', borderTopColor:'transparent', borderRadius:'50%', animation:'spin 1s linear infinite'}}></div>
-            ) : "Send"}
+            {chatLoading ? "..." : "Send"}
           </button>
         </div>
 
         {chatResponse && (
           <div className="response-box" style={{
+              // Make error red
               borderColor: chatResponse.includes("Quota") ? '#ef4444' : 'transparent',
               color: chatResponse.includes("Quota") ? '#ef4444' : '#e2e8f0'
           }}>
