@@ -595,7 +595,7 @@ export default function Home() {
 
       {/* FIXED CHART SECTION */}
       <div className="glass-card" style={{marginBottom: '30px', paddingBottom: '20px'}}>
-        <h2 style={{fontSize: '0.9rem', marginBottom: '10px', border: 'none'}}>Live Traffic (Last 60 Mins)</h2>
+        <h2 style={{fontSize: '0.9rem', marginBottom: '10px', border: 'none'}}>Traffic (Last 24 Hours)</h2>
         {/* Explicit Height Container to Fix Recharts Error */}
         <div style={{width: '100%', height: '250px'}}>
             <ResponsiveContainer width="100%" height="100%">
