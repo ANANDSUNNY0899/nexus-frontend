@@ -794,9 +794,6 @@
 
 
 
-
-
-
 "use client";
 
 import Link from "next/link";
@@ -804,6 +801,7 @@ import { useEffect, useState } from "react";
 
 export default function Landing() {
   const [scrolled, setScrolled] = useState(false);
+  const [activeTab, setActiveTab] = useState("python"); // python or node
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -824,17 +822,11 @@ export default function Landing() {
         borderBottom: scrolled ? '1px solid rgba(255,255,255,0.1)' : 'none',
         zIndex: 100, transition: 'all 0.3s'
       }}>
-        <div style={{fontWeight: 'bold', fontSize: '1.2rem', color: 'white'}}>
-            {/* LOGO SECTION */}
         <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
-            {/* Increased size from 30 -> 50 */}
-            <img src="/favicon.ico" alt="Nexus Logo" width="50" height="50" style={{filter: 'drop-shadow(0 0 10px rgba(99, 102, 241, 0.5))'}} />
-            
-            {/* Increased font from 1.2rem -> 1.5rem */}
-            <span style={{fontWeight:'bold', fontSize:'1.5rem', color:'white', letterSpacing:'-0.5px'}}>
+            <img src="/favicon.ico" alt="Nexus Logo" width="40" height="40" style={{filter: 'drop-shadow(0 0 10px rgba(99, 102, 241, 0.5))'}} />
+            <span style={{fontWeight:'bold', fontSize:'1.5rem', color:'white'}}>
                 Nexus<span style={{color:'#6366f1'}}>Gateway</span>
             </span>
-        </div>
         </div>
         <div style={{display: 'flex', gap: '20px', alignItems: 'center'}}>
             <a href="/docs" style={{color: '#94a3b8', textDecoration: 'none', fontSize: '0.9rem'}}>Docs</a>
@@ -847,31 +839,31 @@ export default function Landing() {
 
       {/* HERO SECTION */}
       <section style={{
-        minHeight: '100vh', display: 'flex', flexDirection: 'column', 
+        minHeight: '90vh', display: 'flex', flexDirection: 'column', 
         alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-        paddingTop: '80px'
+        paddingTop: '100px'
       }}>
         <div style={{
             background: 'linear-gradient(to right, #818cf8, #c084fc)', 
             padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', 
             color: 'white', marginBottom: '20px', fontWeight: 'bold'
         }}>
-             High-Performance Infrastructure for AI
+            🚀 Now with Node.js & Python Support
         </div>
         
         <h1 style={{fontSize: '3.5rem', lineHeight: '1.1', marginBottom: '20px', maxWidth: '900px'}}>
-            The High-Performance Gateway<br/> for <span style={{
+            The Universal Gateway<br/> for <span style={{
                 background: 'linear-gradient(to right, #4f46e5, #ec4899)', 
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
             }}>AI Engineering.</span>
         </h1>
         
         <p style={{fontSize: '1.2rem', color: '#94a3b8', maxWidth: '700px', marginBottom: '30px'}}>
-            Semantic Caching, PII Redaction, and Universal Routing for OpenAI & Anthropic. 
-            Built in <b>Go (Golang)</b> for sub-millisecond overhead.
+            Semantic Caching, BYOK Security, and Universal Routing. 
+            Reduce latency by 95% and costs by 90% with one line of code.
         </p>
 
-        <div style={{display: 'flex', gap: '15px', marginBottom: '20px'}}>
+        <div style={{display: 'flex', gap: '15px', marginBottom: '40px'}}>
             <Link href="/dashboard">
                 <button className="btn btn-primary" style={{fontSize: '1.1rem', padding: '15px 40px'}}>Start for Free</button>
             </Link>
@@ -883,27 +875,73 @@ export default function Landing() {
             </Link>
         </div>
 
-        <p style={{color: '#64748b', fontSize: '0.9rem'}}>
-            ⭐ Trusted by 2,000+ developers. Open-source & Enterprise-ready.
-        </p>
-
-        {/* TERMINAL PREVIEW */}
-        <div style={{marginTop: '60px', width: '100%', maxWidth: '700px', textAlign: 'left'}}>
+        {/* CODE WINDOW */}
+        <div style={{width: '100%', maxWidth: '700px', textAlign: 'left'}}>
             <div className="glass-card" style={{padding: '0', overflow: 'hidden'}}>
-                <div style={{background: '#1e293b', padding: '10px 20px', display: 'flex', gap: '8px', alignItems: 'center'}}>
-                    <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#ef4444'}}></div>
-                    <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#eab308'}}></div>
-                    <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#22c55e'}}></div>
-                    <span style={{marginLeft: '10px', fontSize: '0.8rem', color: '#64748b'}}>bash</span>
+                
+                {/* Tabs */}
+                <div style={{background: '#1e293b', display:'flex', borderBottom:'1px solid #334155'}}>
+                    <button 
+                        onClick={() => setActiveTab("python")}
+                        style={{padding:'10px 20px', background: activeTab==="python" ? '#0f172a' : 'transparent', color: activeTab==="python" ? '#fff' : '#64748b', border:'none', cursor:'pointer'}}
+                    >Python</button>
+                    <button 
+                        onClick={() => setActiveTab("node")}
+                        style={{padding:'10px 20px', background: activeTab==="node" ? '#0f172a' : 'transparent', color: activeTab==="node" ? '#fff' : '#64748b', border:'none', cursor:'pointer'}}
+                    >Node.js</button>
+                    <button 
+                        onClick={() => setActiveTab("cli")}
+                        style={{padding:'10px 20px', background: activeTab==="cli" ? '#0f172a' : 'transparent', color: activeTab==="cli" ? '#fff' : '#64748b', border:'none', cursor:'pointer'}}
+                    >CLI Tool</button>
                 </div>
-                <div style={{padding: '20px', background: '#0f172a', fontFamily: 'monospace', color: '#e2e8f0'}}>
-                    <p><span style={{color: '#818cf8'}}>$</span> pip install nexus-gateway</p>
-                    <p style={{color: '#94a3b8', marginTop: '10px'}}># Initialize Client</p>
-                    <p>client = NexusClient(api_key=<span style={{color: '#4ade80'}}>"nk-..."</span>)</p>
-                    <p>response = client.chat(<span style={{color: '#4ade80'}}>"Explain Quantum Computing"</span>)</p>
+
+                {/* Code Content */}
+                <div style={{padding: '25px', background: '#0f172a', fontFamily: 'monospace', color: '#e2e8f0', minHeight:'200px'}}>
                     
-                    <p style={{color: '#94a3b8', marginTop: '15px'}}># Output:</p>
-                    <p style={{color: '#4ade80'}}># {`{ "status": "200 OK", "latency": "12ms (Cache Hit)", "redacted_pii": 0 }`}</p>
+                    {activeTab === "python" && (
+                        <>
+                            <p className="mb-4"><span style={{color: '#818cf8'}}>$</span> pip install nexus-gateway</p>
+                            <p style={{color: '#c084fc'}}>from</p> nexus_gateway <p style={{color: '#c084fc', display:'inline'}}>import</p> NexusClient
+                            <br/><br/>
+                            <p>client = NexusClient(api_key=<span style={{color: '#4ade80'}}>"nk-..."</span>)</p>
+                            <p>response = client.chat(<span style={{color: '#4ade80'}}>"Hello World"</span>)</p>
+                            
+                            <p style={{color: '#94a3b8', marginTop: '20px', borderTop:'1px solid #334155', paddingTop:'10px'}}>
+                                # Output: {`{ "status": "200 OK", "latency": "12ms (Cache Hit)" }`}
+                            </p>
+                        </>
+                    )}
+
+                    {activeTab === "node" && (
+                        <>
+                            <p className="mb-4"><span style={{color: '#818cf8'}}>$</span> npm install nexus-gateway-js</p>
+                            <p style={{color: '#c084fc'}}>import</p> {'{ NexusClient }'} <p style={{color: '#c084fc', display:'inline'}}>from</p> 'nexus-gateway-js';
+                            <br/><br/>
+                            <p>const client = new NexusClient({'{'} apiKey: <span style={{color: '#4ade80'}}>"nk-..."</span> {'}'});</p>
+                            <p>const res = await client.chat(<span style={{color: '#4ade80'}}>"Hello World"</span>);</p>
+                            
+                            <p style={{color: '#94a3b8', marginTop: '20px', borderTop:'1px solid #334155', paddingTop:'10px'}}>
+                                // Output: {`{ "status": "200 OK", "latency": "15ms (Cache Hit)" }`}
+                            </p>
+                        </>
+                    )}
+
+                    {activeTab === "cli" && (
+                        <>
+                            <p className="mb-4" style={{color:'#94a3b8'}}># Python CLI</p>
+                            <p className="mb-4"><span style={{color: '#818cf8'}}>$</span> nexus</p>
+                            
+                            <p className="mb-4" style={{color:'#94a3b8'}}># Node.js CLI</p>
+                            <p><span style={{color: '#818cf8'}}>$</span> npx nexus-chat</p>
+
+                            <div style={{marginTop:'20px', padding:'15px', background:'#000', borderRadius:'6px', border:'1px solid #334155'}}>
+                                <p style={{color: '#4ade80'}}> Welcome to Nexus Gateway...</p>
+                                <p>You: Hello</p>
+                                <p style={{color: '#60a5fa'}}>Nexus: Hi there! How can I help you?</p>
+                            </div>
+                        </>
+                    )}
+
                 </div>
             </div>
         </div>
@@ -915,21 +953,21 @@ export default function Landing() {
         
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px'}}>
             <FeatureCard 
-                icon="🛡️" 
-                title="PII Firewall (New)" 
-                desc="Automatically redact emails, phone numbers, and API keys before they leave your infrastructure. GDPR compliance by default." 
+                icon="" 
+                title="Bring Your Own Key" 
+                desc="Zero-Knowledge Architecture. Pass your OpenAI keys via headers. We process it, cache it, and forget it. Your keys never touch our database." 
                 highlight={true}
             />
             <FeatureCard 
-                icon="⚡" 
-                title="Sub-ms Latency" 
-                desc="Serve repeated queries instantly from Redis & Pinecone. No more waiting 3s for OpenAI." 
+                icon="" 
+                title="Full-Stack SDKs" 
+                desc="Native libraries for Python (PyPI) and Node.js (NPM). Integrate in seconds, not hours." 
                 highlight={false}
             />
             <FeatureCard 
-                icon="💸" 
-                title="90% Cost Reduction" 
-                desc="Why pay twice for the same answer? Semantic caching stops the burn immediately." 
+                icon="" 
+                title="Semantic Caching" 
+                desc="Don't pay for the same answer twice. We use Pinecone Vector Search to catch similar queries." 
                 highlight={false}
             />
             <FeatureCard 
