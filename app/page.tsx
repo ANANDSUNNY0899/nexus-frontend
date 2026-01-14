@@ -848,7 +848,7 @@ export default function Landing() {
             padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', 
             color: 'white', marginBottom: '20px', fontWeight: 'bold'
         }}>
-            🚀 Now with Node.js & Python Support
+             Now with Node.js & Python Support
         </div>
         
         <h1 style={{fontSize: '3.5rem', lineHeight: '1.1', marginBottom: '20px', maxWidth: '900px'}}>
