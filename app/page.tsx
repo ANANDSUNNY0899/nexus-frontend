@@ -823,7 +823,7 @@ export default function Landing() {
         zIndex: 100, transition: 'all 0.3s'
       }}>
         <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
-            <img src="/favicon.ico" alt="Nexus Logo" width="40" height="40" style={{filter: 'drop-shadow(0 0 10px rgba(99, 102, 241, 0.5))'}} />
+            <img src="/LOGO.png" alt="Nexus Logo" width="80" height="80" style={{filter: 'drop-shadow(0 0 10px rgba(99, 102, 241, 0.5))'}} />
             <span style={{fontWeight:'bold', fontSize:'1.5rem', color:'white'}}>
                 Nexus<span style={{color:'#6366f1'}}>Gateway</span>
             </span>
@@ -948,36 +948,70 @@ export default function Landing() {
       </section>
 
       {/* FEATURES GRID */}
-      <section style={{padding: '80px 20px'}}>
-        <h2 style={{textAlign: 'center', fontSize: '2.5rem', marginBottom: '60px', border: 'none'}}>Why Engineers Choose Nexus</h2>
-        
-        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px'}}>
-            <FeatureCard 
-                icon="" 
-                title="Bring Your Own Key" 
-                desc="Zero-Knowledge Architecture. Pass your OpenAI keys via headers. We process it, cache it, and forget it. Your keys never touch our database." 
-                highlight={true}
-            />
-            <FeatureCard 
-                icon="" 
-                title="Full-Stack SDKs" 
-                desc="Native libraries for Python (PyPI) and Node.js (NPM). Integrate in seconds, not hours." 
-                highlight={false}
-            />
-            <FeatureCard 
-                icon="" 
-                title="Semantic Caching" 
-                desc="Don't pay for the same answer twice. We use Pinecone Vector Search to catch similar queries." 
-                highlight={false}
-            />
-            <FeatureCard 
-                icon="🔀" 
-                title="Universal Router" 
-                desc="Switch between GPT-4, Claude 3, and Llama without changing your code structure." 
-                highlight={false}
-            />
-        </div>
-      </section>
+<section style={{padding: '100px 20px', maxWidth: '1200px', margin: '0 auto'}}>
+  <h2 style={{textAlign: 'center', fontSize: '3rem', fontWeight: '800', marginBottom: '60px', border: 'none', letterSpacing: '-1px'}}>
+    Why Engineers Choose <span style={{color: '#6366f1'}}>Nexus</span>
+  </h2>
+  
+  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px'}}>
+    
+    {/* CARD 1: BYOK */}
+    <div className="glass-card p-8 rounded-2xl border border-white/5 hover:border-indigo-500/50 transition-all group">
+      <div className="mb-4 text-indigo-400 group-hover:scale-110 transition-transform">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          <circle cx="12" cy="16" r="1" />
+        </svg>
+      </div>
+      <h3 className="text-xl font-bold text-white mb-3">Bring Your Own Key</h3>
+      <p className="text-slate-400 leading-relaxed">
+        Zero-Knowledge Architecture. Pass your keys via headers. We process it, cache it, and forget it. Your keys **never touch our database**.
+      </p>
+    </div>
+
+    {/* CARD 2: SDKS */}
+    <div className="glass-card p-8 rounded-2xl border border-white/5 hover:border-indigo-500/50 transition-all group">
+      <div className="mb-4 text-indigo-400 group-hover:scale-110 transition-transform">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+      </div>
+      <h3 className="text-xl font-bold text-white mb-3">Full-Stack SDKs</h3>
+      <p className="text-slate-400 leading-relaxed">
+        Native libraries for **Python (PyPI)** and **Node.js (NPM)**. Integrate into your production environment in seconds, not hours.
+      </p>
+    </div>
+
+    {/* CARD 3: SEMANTIC CACHING */}
+    <div className="glass-card p-8 rounded-2xl border border-white/5 hover:border-indigo-500/50 transition-all group">
+      <div className="mb-4 text-indigo-400 group-hover:scale-110 transition-transform">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+        </svg>
+      </div>
+      <h3 className="text-xl font-bold text-white mb-3">Semantic Caching</h3>
+      <p className="text-slate-400 leading-relaxed">
+        Don't pay for the same answer twice. We use **Pinecone Vector Search** to catch similar queries and reduce costs by up to 90%.
+      </p>
+    </div>
+
+    {/* CARD 4: UNIVERSAL ROUTER */}
+    <div className="glass-card p-8 rounded-2xl border border-white/5 hover:border-indigo-500/50 transition-all group">
+      <div className="mb-4 text-indigo-400 group-hover:scale-110 transition-transform">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
+        </svg>
+      </div>
+      <h3 className="text-xl font-bold text-white mb-3">Universal Model Router</h3>
+      <p className="text-slate-400 leading-relaxed">
+        Switch between **GPT-4, Claude 3, GPT-3.5, Gemini and Llama 3** dynamically. Change models via a single string in your payload without changing code.
+      </p>
+    </div>
+
+  </div>
+</section>
 
       {/* FOOTER */}
       <footer style={{
