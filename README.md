@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://nexus-gateway.org/favicon.ico" width="80" height="80" />
+<img src="https://nexus-gateway.org/LOGO.png" width="80" height="80" />
 
 #  Nexus Gateway Dashboard
 ### The Cyberpunk UI for the AI Semantic Caching Layer
