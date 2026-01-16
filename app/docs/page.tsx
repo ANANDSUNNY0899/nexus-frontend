@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Docs() {
   return (
     <div className="main-wrapper" style={{
-        minHeight: '100vh',
+        minHeight: '1200px',
         padding: '80px 20px',
         // --- LANDING PAGE BACKGROUND DNA ---
         background: 'radial-gradient(circle at 50% -20%, #1e1b4b 0%, #020617 100%)',
@@ -19,7 +19,7 @@ export default function Docs() {
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center', 
-            marginBottom: '60px'
+            marginBottom: '80px'
         }}>
           <div>
               <h1 style={{
