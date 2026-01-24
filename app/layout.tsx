@@ -22,10 +22,14 @@ export const metadata: Metadata = {
   
   // 🚀 THE LOGO FIX: Hard-pointing every icon to LOGO.png
   icons: {
-    icon: "/LOGO.png",
-    shortcut: "/LOGO.png",
-    apple: "/LOGO.png",
+    icon: [
+      { url: "/LOGO.png", sizes: "32x32" },    // Standard Favicon
+      { url: "/LOGO.png", sizes: "192x192" },  // Android Icon
+    ],
+    shortcut: "/LOGO.png", 
+    apple: "/LOGO.png",                        // iOS Icon
   },
+
 
   // Social Media Previews (OpenGraph)
   openGraph: {
@@ -35,10 +39,10 @@ export const metadata: Metadata = {
     siteName: "Nexus Gateway",
     images: [
       {
-        url: "/LOGO.png",
-        width: 512,
-        height: 512,
-        alt: "Nexus Gateway Branding",
+         url: "/LOGO.png",
+        width: 1200,      // 🚀 Standard Large Size
+        height: 630,
+        alt: "Nexus Gateway Console",
       },
     ],
     locale: "en_US",
