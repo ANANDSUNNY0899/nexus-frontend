@@ -1,66 +1,50 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-import "./globals.css";
+import type React from "react"
+import type { Metadata, Viewport } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
+import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const _geist = Geist({ subsets: ["latin"] })
+const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// 🚀 THIS IS THE SEO MAGIC
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nexus-gateway.org'), 
-  title: "Nexus Gateway | High-Performance AI Caching Layer",
-  description: "Reduce OpenAI costs by 90% and speed up LLM responses with semantic caching. The open-source AI Gateway for developers.",
-  keywords: ["AI Gateway", "OpenAI Cache", "LLM Proxy", "Vector Database", "Pinecone", "Golang"],
-  authors: [{ name: "Sunny Anand", url: "https://github.com/ANANDSUNNY0899" }],
-  
-  // 🟢 ADD THIS ICONS BLOCK FOR THE LOGO.png FIX
+  title: "Nexus Gateway | AI Inference Engine",
+  description: "High-performance AI gateway infrastructure with intelligent caching and multi-provider routing",
+  generator: "v0.app",
   icons: {
-    icon: "/LOGO.png",         // For the browser tab
-    shortcut: "/LOGO.png",     // For Google Search results
-    apple: "/LOGO.png",        // For iPhone home screens
+    icon: [
+      {
+        url: "/icon-light-32x32.png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/icon-dark-32x32.png",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        url: "/icon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+    apple: "/apple-icon.png",
   },
+}
 
-  // Facebook / LinkedIn Preview
-  openGraph: {
-    title: "Nexus Gateway - The AI Cache",
-    description: "Stop paying for the same API call twice. Cache your AI requests.",
-    url: "https://nexus-gateway.org",
-    siteName: "Nexus Gateway",
-    locale: "en_US",
-    type: "website",
-    images: ["/LOGO.png"]      // Shows the logo when you share the link on social media
-  },
-
-  // Twitter Preview
-  twitter: {
-    card: "summary_large_image",
-    title: "Nexus Gateway",
-    description: "High-Performance AI Semantic Caching Layer",
-    images: ["/LOGO.png"]      // Shows the logo when you tweet the link
-  },
-};
+export const viewport: Viewport = {
+  themeColor: "#020617",
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="font-sans antialiased bg-[#020617]">
         {children}
-         <Analytics />
+        <Analytics />
       </body>
     </html>
-  );
+  )
 }

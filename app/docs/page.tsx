@@ -1,186 +1,251 @@
-"use client";
+"use client"
 
-import Link from "next/link";
+import Link from "next/link"
+import Image from "next/image"
+import { ArrowUpRight, Key, Server, Code2, Zap } from "lucide-react"
 
-export default function Docs() {
+export default function DocsPage() {
   return (
-    <div className="main-wrapper" style={{
-        minHeight: '1200px',
-        padding: '80px 20px',
-        // --- LANDING PAGE BACKGROUND DNA ---
-        background: 'radial-gradient(circle at 50% -20%, #1e1b4b 0%, #020617 100%)',
-        color: '#fff'
-    }}>
-      
-      <div style={{maxWidth: '900px', margin: '0 auto'}}>
-        
-        {/* 1. HEADER SECTION */}
-        <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            marginBottom: '80px'
-        }}>
-          <div>
-              <h1 style={{
-                  fontSize:'3.2rem', 
-                  fontWeight: '900', 
-                  margin: 0,
-                  letterSpacing: '-2px',
-                  background: 'linear-gradient(to right, #fff, #818cf8)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-              }}>
-                  Documentation
-              </h1>
-              <p style={{color:'#94a3b8', marginTop: '10px', fontSize: '1.1rem'}}>
-                  Technical specifications for the Nexus Gateway Protocol.
-              </p>
-          </div>
-          
-          <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-              <button style={{ 
-                  padding: '12px 28px', 
-                  borderRadius: '12px', 
-                  border: 'none', 
-                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', 
-                  color: '#fff', 
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)',
-                  transition: 'transform 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                  Back to Dashboard
-              </button>
-          </Link>
-        </div>
+    <div className="min-h-screen bg-[#020617] text-slate-200 font-sans">
+      {/* Background gradient */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(circle at 50% -20%, rgba(30, 27, 75, 0.5) 0%, transparent 50%)",
+        }}
+      />
 
-        {/* 2. SECTION: IMPLEMENTATION (GLASS CARD) */}
-        <div className="glass-card" style={{
-            padding: '40px', 
-            marginBottom: '40px', 
-            borderRadius: '24px',
-            background: 'rgba(255, 255, 255, 0.03)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 255, 255, 0.05)'
-        }}>
-          <h2 style={{color: '#fff', fontSize: '1.25rem', fontWeight: '800', marginBottom: '32px', textTransform: 'uppercase', letterSpacing: '2px'}}>Implementation</h2>
-          <div style={{display:'flex', flexDirection:'column', gap:'40px'}}>
+      <div className="relative max-w-[1440px] mx-auto">
+        {/* Layout: Sidebar + Main Content */}
+        <div className="flex min-h-screen">
+          {/* Left Sidebar - Fixed Navigation */}
+          <aside className="hidden lg:block w-[300px] border-r border-white/5 p-8 sticky top-0 h-screen">
+            <div className="mb-12">
+              <Link href="/" className="flex items-center gap-3 group">
+                 <Image 
+                    src="/LOGO.png" 
+                    alt="Nexus Gateway Logo" 
+                    width={105} 
+                    height={105} 
+                    className="rounded-2xl shadow-2xl shadow-indigo-500/20 border border-white/5 group-hover:scale-105 transition-transform" 
+                />
+                <div>
+                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">Documentation</h2>
+                  <p className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">v2.2.0</p>
+                </div>
+              </Link>
+            </div>
+
+            <nav className="space-y-2">
               {[
-                  { title: "Authentication", detail: "Generate a unique API Key from the Nexus Dashboard to authenticate your requests." },
-                  { title: "Configuration", detail: "Select your preferred model engine (GPT-4, Claude, Llama 3, or Gemini)." },
-                  { title: "Integration", detail: "Authorize requests using the Bearer token protocol in your HTTP headers." }
-              ].map((step, i) => (
-                  <div key={i} style={{display:'flex', gap:'24px', alignItems: 'flex-start'}}>
-                      <span style={{
-                          color: '#6366f1', 
-                          fontWeight: '900', 
-                          fontSize: '1.1rem',
-                          fontFamily: 'monospace',
-                          background: 'rgba(99, 102, 241, 0.1)',
-                          padding: '4px 10px',
-                          borderRadius: '8px'
-                      }}>0{i+1}</span>
-                      <div>
-                          <p style={{color: '#fff', fontWeight: '700', fontSize: '1.1rem', margin: '0 0 6px 0'}}>{step.title}</p>
-                          <p style={{color: '#94a3b8', fontSize: '1rem', lineHeight: '1.6'}}>{step.detail}</p>
-                      </div>
-                  </div>
+                { num: "01", label: "IMPLEMENTATION", href: "#implementation" },
+                { num: "02", label: "BYOK CONFIGURATION", href: "#byok" },
+                { num: "03", label: "API REFERENCE", href: "#api" },
+                { num: "04", label: "MODEL ENGINES", href: "#models" },
+              ].map((item) => (
+                <a
+                  key={item.num}
+                  href={item.href}
+                  className="flex items-center gap-4 p-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.02] transition-all group"
+                >
+                  <span className="font-mono text-xs text-indigo-500">{item.num}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider">{item.label}</span>
+                </a>
               ))}
-          </div>
-        </div>
+            </nav>
 
-        {/* 3. SECTION: BYOK (PROVIDER KEYS) */}
-        <div style={{
-            padding: '32px', 
-            marginBottom: '40px', 
-            borderRadius: '24px',
-            background: 'rgba(99, 102, 241, 0.05)', 
-            border: '1px solid rgba(99, 102, 241, 0.2)',
-            backdropFilter: 'blur(10px)'
-        }}>
-          <h2 style={{color: '#a5b4fc', fontSize: '1.1rem', fontWeight: '800', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px'}}>Provider Key Pass-Through</h2>
-          <p style={{color: '#cbd5e1', fontSize: '1rem', marginBottom: '24px', lineHeight: '1.6'}}>
-              Nexus Gateway supports a zero-knowledge key architecture. To utilize your own provider billing and bypass Nexus credit limits, include these headers.
-          </p>
-          <div style={{background: '#000', padding: '24px', borderRadius: '16px', border: '1px solid #1e293b', fontFamily: 'monospace', fontSize: '0.9rem', color: '#e2e8f0'}}>
-              <p style={{color: '#475569', marginBottom: '10px'}}># Set Header: x-nexus-[provider]-key</p>
-              <p style={{marginBottom: '6px'}}><span style={{color: '#6366f1'}}>x-nexus-openai-key:</span> sk-your-key</p>
-              <p style={{marginBottom: '6px'}}><span style={{color: '#6366f1'}}>x-nexus-groq-key:</span> gsk_your-key</p>
-              <p><span style={{color: '#6366f1'}}>x-nexus-gemini-key:</span> AIza_your-key</p>
-          </div>
-        </div>
+            <div className="absolute bottom-8 left-8 right-8">
+              <Link href="/dashboard">
+                <button className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center justify-center gap-2">
+                  Dashboard
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
+              </Link>
+            </div>
+          </aside>
 
-        {/* 4. SECTION: API REFERENCE */}
-        <div className="glass-card" style={{
-            padding: '40px', 
-            marginBottom: '40px', 
-            borderRadius: '24px',
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.05)'
-        }}>
-          <h2 style={{color: '#fff', fontSize: '1.25rem', fontWeight: '800', marginBottom: '32px', textTransform: 'uppercase', letterSpacing: '2px'}}>API Reference</h2>
+          {/* Main Content Area */}
+          <main className="flex-1 p-8 lg:p-12 space-y-12">
+            {/* Mobile Header */}
+            <div className="lg:hidden flex justify-between items-center mb-8">
+              <h1 className="text-2xl font-black text-white uppercase tracking-tight">Documentation</h1>
+              <Link href="/dashboard">
+                <button className="bg-indigo-600 px-4 py-2 rounded-lg text-xs font-bold uppercase text-white">
+                  Dashboard
+                </button>
+              </Link>
+            </div>
 
-          {/* Streaming Endpoint */}
-          <div style={{marginBottom: '48px'}}>
-              <div style={{display:'flex', alignItems:'center', gap:'16px', marginBottom:'16px'}}>
-                  <span style={{border: '1px solid #22c55e', color:'#22c55e', padding:'4px 12px', borderRadius:'8px', fontWeight:'800', fontSize:'0.75rem'}}>POST</span>
-                  <code style={{fontSize:'1.2rem', color:'#fff', fontWeight: '700'}}>/api/chat/stream</code>
+            {/* Hero Section */}
+            <header className="border-b border-white/5 pb-12">
+              <h1 className="text-4xl lg:text-5xl font-black text-white tracking-tight mb-4">
+                Technical Specifications
+              </h1>
+              <p className="text-lg text-slate-400 max-w-2xl">
+                Complete integration guide for the Nexus Gateway Protocol. High-performance AI inference with semantic
+                caching.
+              </p>
+            </header>
+
+            {/* Section: Implementation */}
+            <section id="implementation" className="scroll-mt-8">
+              <div className="bg-white/[0.01] backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-8 lg:p-10 hover:border-indigo-500/20 transition-all">
+                <h2 className="text-xs font-sans uppercase tracking-widest text-white mb-10 flex items-center gap-3">
+                  <span className="text-indigo-500 font-mono">01.</span>
+                  Implementation
+                </h2>
+
+                <div className="space-y-8">
+                  {[
+                    {
+                      icon: <Key className="w-5 h-5" />,
+                      title: "Authentication",
+                      detail: "Generate a unique API Key from the Nexus Dashboard to authenticate your requests.",
+                    },
+                    {
+                      icon: <Server className="w-5 h-5" />,
+                      title: "Configuration",
+                      detail: "Select your preferred model engine (GPT-4, Claude, Llama 3, or Gemini).",
+                    },
+                    {
+                      icon: <Code2 className="w-5 h-5" />,
+                      title: "Integration",
+                      detail: "Authorize requests using the Bearer token protocol in your HTTP headers.",
+                    },
+                  ].map((step, i) => (
+                    <div key={i} className="flex gap-6 items-start">
+                      <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+                        {step.icon}
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-lg mb-2">{step.title}</p>
+                        <p className="text-slate-400 leading-relaxed">{step.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p style={{color: '#94a3b8', fontSize: '1rem', marginBottom: '24px'}}>Primary streaming endpoint for real-time inference. Requests are automatically routed based on the model parameter.</p>
-              
-              <div style={{background: '#000', padding: '24px', borderRadius: '16px', border: '1px solid #1e293b', fontFamily: 'monospace', fontSize: '0.9rem'}}>
-<pre style={{color: '#e2e8f0', margin: 0}}>
-{`{
+            </section>
+
+            {/* Section: BYOK */}
+            <section id="byok" className="scroll-mt-8">
+              <div className="bg-indigo-500/[0.03] border border-indigo-500/20 rounded-2xl p-8 lg:p-10 backdrop-blur-xl">
+                <h2 className="text-xs font-sans uppercase tracking-widest text-indigo-400 mb-4 flex items-center gap-3">
+                  <span className="font-mono">02.</span>
+                  Provider Key Pass-Through
+                </h2>
+                <p className="text-slate-400 mb-8 max-w-2xl leading-relaxed">
+                  Nexus Gateway supports a zero-knowledge key architecture. To utilize your own provider billing and
+                  bypass Nexus credit limits, include these headers.
+                </p>
+
+                <div className="bg-black rounded-xl p-6 border border-white/10 font-mono text-sm overflow-x-auto">
+                  <p className="text-slate-600 mb-4"># Set Header: x-nexus-[provider]-key</p>
+                  <div className="space-y-2">
+                    <p>
+                      <span className="text-indigo-400">x-nexus-openai-key:</span>{" "}
+                      <span className="text-emerald-400">sk-your-key</span>
+                    </p>
+                    <p>
+                      <span className="text-indigo-400">x-nexus-groq-key:</span>{" "}
+                      <span className="text-emerald-400">gsk_your-key</span>
+                    </p>
+                    <p>
+                      <span className="text-indigo-400">x-nexus-gemini-key:</span>{" "}
+                      <span className="text-emerald-400">AIza_your-key</span>
+                    </p>
+                    <p>
+                      <span className="text-indigo-400">x-nexus-anthropic-key:</span>{" "}
+                      <span className="text-emerald-400">sk-ant-your-key</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Section: API Reference */}
+            <section id="api" className="scroll-mt-8">
+              <div className="bg-white/[0.01] backdrop-blur-2xl border border-white/[0.05] rounded-2xl p-8 lg:p-10 hover:border-indigo-500/20 transition-all">
+                <h2 className="text-xs font-sans uppercase tracking-widest text-white mb-10 flex items-center gap-3">
+                  <span className="text-indigo-500 font-mono">03.</span>
+                  API Reference
+                </h2>
+
+                {/* Streaming Endpoint */}
+                <div className="mb-12">
+                  <div className="flex items-center gap-4 mb-4">
+                    <span className="border border-emerald-500 text-emerald-500 px-3 py-1 rounded-lg font-mono text-xs font-bold">
+                      POST
+                    </span>
+                    <code className="text-xl text-white font-mono font-semibold">/api/chat/stream</code>
+                  </div>
+                  <p className="text-slate-400 mb-6 max-w-2xl">
+                    Primary streaming endpoint for real-time inference. Requests are automatically routed based on the
+                    model parameter.
+                  </p>
+
+                  <div className="bg-black rounded-xl p-6 border border-white/10 font-mono text-sm">
+                    <pre className="text-slate-300 overflow-x-auto">
+                      {`{
   "model": "llama3-70b-8192",
   "message": "Technical query here..."
 }`}
-</pre>
-              </div>
-          </div>
-
-          {/* Stats */}
-          <div>
-              <div style={{display:'flex', alignItems:'center', gap:'16px', marginBottom:'16px'}}>
-                  <span style={{border: '1px solid #3b82f6', color:'#3b82f6', padding:'4px 12px', borderRadius:'8px', fontWeight:'800', fontSize:'0.75rem'}}>GET</span>
-                  <code style={{fontSize:'1.2rem', color:'#fff', fontWeight: '700'}}>/api/stats</code>
-              </div>
-              <p style={{color: '#94a3b8', fontSize: '1rem'}}>Returns real-time telemetry including cache efficiency and cost mitigation data.</p>
-          </div>
-        </div>
-
-        {/* 5. SECTION: MODEL ENGINES */}
-        <div style={{marginTop: '60px', textAlign: 'center'}}>
-          <h2 style={{color: '#fff', fontSize: '1.25rem', fontWeight: '800', marginBottom: '40px', textTransform: 'uppercase', letterSpacing: '2px'}}>Supported Model Engines</h2>
-          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'20px'}}>
-              {[
-                  { name: "GPT-4o", provider: "OpenAI" },
-                  { name: "Llama 3", provider: "Groq" },
-                  { name: "Gemini 1.5", provider: "Google" },
-                  { name: "Claude 3.5", provider: "Anthropic" }
-              ].map((m, i) => (
-                  <div key={i} style={{
-                      padding:'24px', 
-                      borderRadius:'16px', 
-                      border: '1px solid rgba(255,255,255,0.05)', 
-                      background: 'rgba(255,255,255,0.02)',
-                      backdropFilter: 'blur(5px)'
-                  }}>
-                      <p style={{color:'#fff', fontWeight:'800', fontSize: '1.1rem', margin: '0 0 6px 0'}}>{m.name}</p>
-                      <p style={{fontSize:'0.75rem', color: '#818cf8', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px'}}>{m.provider}</p>
+                    </pre>
                   </div>
-              ))}
-          </div>
+                </div>
+
+                {/* Stats Endpoint */}
+                <div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <span className="border border-blue-500 text-blue-500 px-3 py-1 rounded-lg font-mono text-xs font-bold">
+                      GET
+                    </span>
+                    <code className="text-xl text-white font-mono font-semibold">/api/stats</code>
+                  </div>
+                  <p className="text-slate-400">
+                    Returns real-time telemetry including cache efficiency and cost mitigation data.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section: Model Engines */}
+            <section id="models" className="scroll-mt-8">
+              <h2 className="text-xs font-sans uppercase tracking-widest text-white mb-8 flex items-center gap-3">
+                <span className="text-indigo-500 font-mono">04.</span>
+                Supported Model Engines
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { name: "GPT-4o", provider: "OpenAI", icon: <Zap className="w-5 h-5" /> },
+                  { name: "Llama 3", provider: "Groq", icon: <Zap className="w-5 h-5" /> },
+                  { name: "Gemini 1.5", provider: "Google", icon: <Zap className="w-5 h-5" /> },
+                  { name: "Claude 3.5", provider: "Anthropic", icon: <Zap className="w-5 h-5" /> },
+                ].map((model, i) => (
+                  <div
+                    key={i}
+                    className="bg-white/[0.01] backdrop-blur-xl border border-white/[0.05] rounded-xl p-6 hover:border-indigo-500/20 transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 group-hover:bg-indigo-500/20 transition-colors">
+                      {model.icon}
+                    </div>
+                    <p className="text-white font-bold text-lg mb-1">{model.name}</p>
+                    <p className="text-xs font-mono text-indigo-400 uppercase tracking-wider">{model.provider}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </main>
         </div>
 
-        <footer style={{textAlign:'center', color:'#475569', fontSize:'0.8rem', marginTop:'100px', letterSpacing: '2px', textTransform: 'uppercase'}}>
-          Nexus Gateway Infrastructure · v2.2.0-STABLE
+        {/* Footer */}
+        <footer className="border-t border-white/5 px-8 lg:px-12 py-8">
+          <p className="text-[10px] font-mono text-slate-600 uppercase tracking-widest text-center">
+            Nexus Gateway Infrastructure · v2.2.0-STABLE
+          </p>
         </footer>
-
       </div>
     </div>
-  );
+  )
 }
