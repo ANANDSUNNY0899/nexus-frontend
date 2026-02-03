@@ -32,8 +32,8 @@ export function InferenceConfig({ providerKey, setProviderKey, model, setModel }
           >
             <optgroup label="Nexus Credits (Free)">
               <option value="llama-3.3-70b-versatile">Llama 3.3 Versatile (Ultra Fast)</option>
+              <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
               <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              <option value="gemini-1.5-flash">Gemini Flash</option>
             </optgroup>
             <optgroup label="BYOK Required (Pro)">
               <option value="gpt-4o">GPT-4o (OpenAI)</option>
