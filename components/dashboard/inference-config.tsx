@@ -31,8 +31,8 @@ export function InferenceConfig({ providerKey, setProviderKey, model, setModel }
             className="w-full bg-black border border-white/10 p-4 rounded-xl font-mono text-sm text-white focus:outline-none focus:border-indigo-500/50 transition-colors appearance-none cursor-pointer pr-12"
           >
             <optgroup label="Nexus Credits (Free)">
+              <option value="llama-3.3-70b-versatile">Llama 3.3 Versatile (Ultra Fast)</option>
               <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              <option value="llama3-70b-8192">Llama 3 (Groq)</option>
               <option value="gemini-1.5-flash">Gemini Flash</option>
             </optgroup>
             <optgroup label="BYOK Required (Pro)">
