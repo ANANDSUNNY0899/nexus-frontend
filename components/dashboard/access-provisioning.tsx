@@ -4,7 +4,8 @@
 "use client"
 
 import { Copy, Check, Shield, Activity } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+
 
 interface AccessProvisioningProps {
   email: string
@@ -27,6 +28,12 @@ export function AccessProvisioning({ email, setEmail, apiKey, loading, onRegiste
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+ useEffect(() => {
+    if (apiKey && typeof window !== "undefined") {
+      localStorage.setItem("nexus_api_key", apiKey);
+    }
+  }, [apiKey]);
+  
 
   return (
     <div className="bg-white/[0.01] backdrop-blur-2xl border border-white/[0.05] p-6 lg:p-8 rounded-2xl transition-all duration-300 hover:border-indigo-500/20 space-y-6">

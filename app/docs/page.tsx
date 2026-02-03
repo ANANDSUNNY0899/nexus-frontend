@@ -1,10 +1,25 @@
 "use client"
 
+import React, { useState, useEffect } from "react";
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowUpRight, Key, Server, Code2, Zap } from "lucide-react"
 
+
+
+
 export default function DocsPage() {
+
+  const [userApiKey, setUserApiKey] = useState("nk-your-api-key");
+
+  useEffect(() => {
+    // Check if we are in the browser to avoid SSR errors
+    if (typeof window !== "undefined") {
+      const savedKey = localStorage.getItem("nexus_api_key"); 
+      if (savedKey) setUserApiKey(savedKey);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 font-sans">
       {/* Background gradient */}
@@ -140,24 +155,20 @@ export default function DocsPage() {
                 </p>
 
                 <div className="bg-black rounded-xl p-6 border border-white/10 font-mono text-sm overflow-x-auto">
-                  <p className="text-slate-600 mb-4"># Set Header: x-nexus-[provider]-key</p>
-                  <div className="space-y-2">
-                    <p>
-                      <span className="text-indigo-400">x-nexus-openai-key:</span>{" "}
-                      <span className="text-emerald-400">sk-your-key</span>
-                    </p>
-                    <p>
-                      <span className="text-indigo-400">x-nexus-groq-key:</span>{" "}
-                      <span className="text-emerald-400">gsk_your-key</span>
-                    </p>
-                    <p>
-                      <span className="text-indigo-400">x-nexus-gemini-key:</span>{" "}
-                      <span className="text-emerald-400">AIza_your-key</span>
-                    </p>
-                    <p>
-                      <span className="text-indigo-400">x-nexus-anthropic-key:</span>{" "}
-                      <span className="text-emerald-400">sk-ant-your-key</span>
-                    </p>
+                  <p className="text-slate-600 mb-4"># Set Headers for Sovereign Routing</p>
+                  <div className="space-y-4">
+                    {/* 1. Nexus Authorization (Asli Key yahan dikhegi) */}
+                    <div>
+                      <p className="text-indigo-400">Authorization:</p>
+                      <p className="text-emerald-400 pl-4">Bearer {userApiKey}</p>
+                    </div>
+
+                    {/* 2. Provider Keys (Inhe default placeholder hi rehne do) */}
+                    <div className="pt-4 border-t border-white/5 space-y-1">
+                      <p className="text-slate-600"># Optional: BYOK Headers</p>
+                      <p><span className="text-indigo-400">x-nexus-openai-key:</span> <span className="text-slate-500">sk-your-key</span></p>
+                      <p><span className="text-indigo-400">x-nexus-groq-key:</span> <span className="text-slate-500">gsk_your-key</span></p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -187,10 +198,14 @@ export default function DocsPage() {
                   <div className="bg-black rounded-xl p-6 border border-white/10 font-mono text-sm">
                     <pre className="text-slate-300 overflow-x-auto">
                       {`{
-  "model": "llama3-70b-8192",
-  "message": "Technical query here..."
-}`}
+                        "model": "llama3-70b-versatile",
+                        "message": "Technical query here..."
+                      }`}
                     </pre>
+                    <div className="mt-6 pt-6 border-t border-white/5">
+                        <p className="text-slate-600 mb-2"># Request Header</p>
+                        <p className="text-indigo-300">Authorization: <span className="text-emerald-400">Bearer {userApiKey}</span></p>
+                    </div>
                   </div>
                 </div>
 
