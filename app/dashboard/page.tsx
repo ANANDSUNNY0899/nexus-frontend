@@ -41,7 +41,7 @@ export default function Dashboard() {
   })
   const [usage, setUsage] = useState({ used: 0, limit: 100 });
 
-  const backendUrl = "https://nexusgateway.onrender.com"
+  const backendUrl = "https://nexusgateway-production.up.railway.app"
 
   // --- 2. FETCH GLOBAL TELEMETRY (FIXED: Added this function) ---
   const fetchStats = useCallback(async () => {
