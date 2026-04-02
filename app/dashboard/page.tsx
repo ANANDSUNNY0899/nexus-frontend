@@ -287,10 +287,9 @@
 
 
 
-
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { StatsGrid } from "@/components/dashboard/stats-grid"
 import { TelemetryChart } from "@/components/dashboard/telemetry-chart"
@@ -328,7 +327,7 @@ export default function Dashboard() {
   const [upgradeError, setUpgradeError] = useState(false)
   const [telemetry, setTelemetry] = useState<TelemetryData | undefined>(undefined)
   
-  // 🧠 MEMORY ENGINE STATE
+  // 🧠 MEMORY ENGINE: Stores the conversation history for the Go Backend
   const [chatHistory, setChatHistory] = useState([
     { role: "assistant", content: "Welcome to Nexus Gateway. How can I assist your research today?" }
   ]);
@@ -418,35 +417,38 @@ export default function Dashboard() {
     if (!apiKey) return alert("Enter Nexus API Key first")
     if (!message) return;
 
-    // A. Build new history array locally
-    const newUserMsg = { role: "user", content: message };
-    const historyWithUser = [...chatHistory, newUserMsg];
+    const currentPrompt = message;
+    setMessage(""); // Clear input field immediately
+    
+    // 1. Prepare User Message
+    const newUserMsg = { role: "user", content: currentPrompt };
 
-    // B. Reset streaming states
+    // 2. Reset UI for new stream
     setChatLoading(true)
     setChatResponse("")
     setReasoning("")
     setQuotaExceeded(false)
     setTelemetry(undefined)
     
-    // C. Update UI history immediately
-    setChatHistory(historyWithUser);
-    setMessage(""); 
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-    }
-    // Add BYOK headers if present
-    if (providerKey) headers["x-nexus-openai-key"] = providerKey;
+    // 🔥 FIX: Capture history synchronously using a local variable
+    let fullHistorySnapshot: any[] = [];
+    setChatHistory((prev) => {
+      const updated = [...prev, newUserMsg];
+      fullHistorySnapshot = updated; 
+      return updated;
+    });
 
     try {
       const res = await fetch(`${backendUrl}/api/chat/stream`, {
         method: "POST",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+          ...(providerKey ? { "x-nexus-openai-key": providerKey } : {})
+        },
         body: JSON.stringify({ 
           model: model, 
-          messages: historyWithUser // <--- Full context sent to Go
+          messages: fullHistorySnapshot // Send full history to Go Backend
         }),
       })
 
@@ -458,7 +460,7 @@ export default function Dashboard() {
 
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
-      let streamBuffer = ""; // To reconstruct full AI text
+      let streamBuffer = ""; 
 
       while (reader) {
         const { value, done } = await reader.read();
@@ -470,8 +472,11 @@ export default function Dashboard() {
             try {
               const data = JSON.parse(line.replace("data: ", ""));
               
-              // Extract Telemetry if provided in the first chunk
+              // Handle Telemetry and Reasoning chunks
               if (data.telemetry) setTelemetry(data.telemetry);
+              if (data.choices?.[0]?.delta?.reasoning_content) {
+                setReasoning((prev) => prev + data.choices[0].delta.reasoning_content);
+              }
 
               const content = data.choices?.[0]?.delta?.content;
               if (content) {
@@ -483,15 +488,15 @@ export default function Dashboard() {
         }
       }
 
-      // D. Save Assistant Response to history for the next turn
+      // 🔥 FIX: Save Assistant response using functional update to prevent state loss
       if (streamBuffer) {
-        setChatHistory(prev => [...prev, { role: "assistant", content: streamBuffer }]);
+        setChatHistory((prev) => [...prev, { role: "assistant", content: streamBuffer }]);
       }
       
       fetchStats();
       fetchUsage();
     } catch {
-      setChatResponse("Nexus Gateway: Connection Failed. Check your network or API keys.");
+      setChatResponse("Nexus Gateway: Connection Failed.");
     } finally {
       setChatLoading(false);
     }
