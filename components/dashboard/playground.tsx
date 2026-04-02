@@ -236,9 +236,11 @@
 
 
 
+
+
 "use client"
 
-import { Send, Zap, Key, Brain, Activity, ShieldCheck, Database, ChevronDown, User, Terminal } from "lucide-react"
+import { Send, Zap, Brain, Activity, ShieldCheck, Database, ChevronDown, Terminal } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 
 interface Message {
@@ -249,7 +251,7 @@ interface Message {
 interface PlaygroundProps {
   message: string
   setMessage: (message: string) => void
-  chatHistory?: Message[] // Made optional to prevent undefined crashes
+  chatHistory?: Message[]
   chatResponse: string   
   reasoning?: string 
   chatLoading: boolean
@@ -264,25 +266,7 @@ interface PlaygroundProps {
   }
 }
 
-// 1. UPGRADE BLOCK (Cyberpunk Alert)
-function UpgradeBlock({ onUpgrade, upgradeError }: { onUpgrade?: () => void | Promise<void>; upgradeError?: boolean }) {
-  return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="font-mono text-[10px] text-amber-500/80 bg-amber-500/5 border border-amber-500/20 p-3 rounded flex items-center gap-3">
-        <Zap className="w-3 h-3 animate-pulse" />
-        <span>[SYSTEM_ALERT]: QUOTA_EXHAUSTED. PLEASE INITIALIZE PRO_UPGRADE.</span>
-      </div>
-      <button
-        onClick={onUpgrade}
-        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-mono text-xs uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)]"
-      >
-        Initialize Pro Protocol
-      </button>
-    </div>
-  )
-}
-
-// 2. THOUGHT BLOCK (DeepSeek Specialist)
+// 🧠 THOUGHT BLOCK: Specifically for DeepSeek/Reasoning models
 function ThoughtBlock({ reasoning }: { reasoning?: string }) {
   const [isOpen, setIsOpen] = useState(true);
   if (!reasoning) return null;
@@ -296,25 +280,24 @@ function ThoughtBlock({ reasoning }: { reasoning?: string }) {
         <div className="flex items-center gap-2">
           <Brain className={`w-3 h-3 text-indigo-400 ${isOpen ? 'animate-pulse' : ''}`} />
           <span className="font-mono text-[9px] uppercase tracking-widest text-indigo-300">
-            Internal Reasoning {isOpen ? '[ACTIVE]' : '[COLLAPSED]'}
+            Sovereign_Logic_Process {isOpen ? '[ACTIVE]' : '[COLLAPSED]'}
           </span>
         </div>
         <ChevronDown className={`w-3 h-3 text-indigo-500 transition-transform ${isOpen ? '' : '-rotate-90'}`} />
       </button>
       {isOpen && (
-        <div className="p-4 font-mono text-[11px] text-indigo-300/40 leading-relaxed italic border-t border-indigo-500/10 max-h-[150px] overflow-y-auto scrollbar-hide">
+        <div className="p-4 font-mono text-[11px] text-indigo-300/60 leading-relaxed italic border-t border-indigo-500/10 max-h-[150px] overflow-y-auto scrollbar-hide">
           {reasoning}
         </div>
       )}
     </div>
-  )
+  );
 }
 
-// 3. MAIN PLAYGROUND
 export function Playground({
   message,
   setMessage,
-  chatHistory = [], // <--- SAFETY: Default to empty array
+  chatHistory = [],
   chatResponse,
   reasoning,
   chatLoading,
@@ -326,127 +309,121 @@ export function Playground({
 }: PlaygroundProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll logic for real-time streaming
+  // 🛰️ Smooth Auto-Scroll Engine
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }, [chatHistory, chatResponse, reasoning]);
 
   return (
     <div className="relative bg-black border border-white/[0.05] rounded-2xl p-6 lg:p-8 flex flex-col h-[600px] overflow-hidden group shadow-2xl">
-      {/* Visual background FX */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)" }} />
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
-
-      {/* Header with Telemetry */}
+      
+      {/* Header with Live Telemetry */}
       <div className="flex justify-between items-center mb-6 relative z-20">
         <div className="flex items-center gap-3">
-          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
           <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/70">
-            Universal Playground <span className="text-white/20 ml-2">v3.2.0</span>
+            Nexus Gateway Playground <span className="text-white/20 ml-2">v3.2.0</span>
           </h3>
         </div>
         
         {telemetry && (
-          <div className="flex items-center gap-4 animate-in fade-in slide-in-from-right-4">
-             <div className="flex items-center gap-2 px-2 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded">
+          <div className="flex items-center gap-4">
+             <div className={`flex items-center gap-2 px-2 py-1 border rounded ${telemetry.isCacheHit ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-indigo-500/5 border-indigo-500/20'}`}>
                 {telemetry.isCacheHit ? <Database className="w-2.5 h-2.5 text-emerald-400" /> : <Activity className="w-2.5 h-2.5 text-indigo-400" />}
-                <span className="text-[9px] font-mono text-slate-400 uppercase">{telemetry.provider}</span>
+                <span className="text-[9px] font-mono text-slate-400 uppercase">{telemetry.isCacheHit ? 'Cache_Hit' : telemetry.provider}</span>
              </div>
              <span className="text-[10px] font-mono text-indigo-400 font-bold">{telemetry.latency}ms</span>
           </div>
         )}
       </div>
 
-      {/* Terminal Content Area */}
+      {/* Terminal Display */}
       <div 
         ref={scrollRef}
-        className="relative flex-1 bg-[#050505] border border-white/5 p-6 rounded-xl overflow-y-auto mb-6 scrollbar-hide space-y-8"
+        className="relative flex-1 bg-[#050505] border border-white/5 p-6 rounded-xl overflow-y-auto mb-6 scrollbar-hide"
       >
-        <div className={`absolute inset-0 pointer-events-none ${quotaExceeded ? 'bg-amber-500/[0.02]' : ''}`} />
-
-        {quotaExceeded ? (
-          <UpgradeBlock onUpgrade={onUpgrade} upgradeError={upgradeError} />
-        ) : (
-          <div className="relative z-10 space-y-6">
-            {/* 1. MAP HISTORY (SAFE) */}
-            {chatHistory && chatHistory.length > 0 ? (
-                chatHistory.map((chat, i) => (
-                  <div key={i} className={`flex flex-col gap-2 ${chat.role === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className="flex items-center gap-2 opacity-30">
-                        <span className="text-[8px] font-mono uppercase tracking-widest">
-                            {chat.role === 'user' ? 'Local_Terminal' : 'Remote_Node'}
-                        </span>
-                    </div>
-                    <div className={`max-w-[85%] px-4 py-3 rounded-2xl font-mono text-sm leading-relaxed border ${
-                      chat.role === 'user' 
-                        ? 'bg-white/[0.02] border-white/10 text-slate-400 rounded-tr-none' 
-                        : 'bg-indigo-500/[0.03] border-indigo-500/10 text-slate-200 rounded-tl-none'
-                    }`}>
-                      {chat.content}
-                    </div>
-                  </div>
-                ))
-            ) : !chatLoading && (
-                <div className="flex flex-col items-center justify-center h-full py-20 opacity-20 text-center">
-                    <Terminal className="w-8 h-8 mb-4" />
-                    <p className="font-mono text-xs uppercase tracking-widest">Awaiting Sovereign Instruction...</p>
-                </div>
-            )}
-
-            {/* 2. LIVE STREAMING BLOCK */}
-            {chatLoading && (
-              <div className="flex flex-col items-start gap-2 animate-in fade-in slide-in-from-left-2 duration-300">
-                <div className="flex items-center gap-2 opacity-50">
-                    <span className="text-[8px] font-mono uppercase tracking-widest text-indigo-400">Stream_Active</span>
-                </div>
-                <div className="w-full max-w-[85%]">
-                    <ThoughtBlock reasoning={reasoning} />
-                    <div className="p-4 rounded-2xl rounded-tl-none font-mono text-sm leading-relaxed text-slate-200 bg-indigo-500/[0.05] border border-indigo-500/20">
-                      {chatResponse}
-                      <span className="inline-block w-1.5 h-4 bg-indigo-500 ml-1 animate-pulse shadow-[0_0_10px_rgba(99,102,241,1)]" />
-                    </div>
-                </div>
+        <div className="space-y-6">
+          {/* 1. RENDER PERMANENT HISTORY */}
+          {chatHistory.map((chat, i) => (
+            <div key={i} className={`flex flex-col gap-2 ${chat.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <span className="text-[8px] font-mono uppercase tracking-widest opacity-30">
+                {chat.role === 'user' ? 'Local_Terminal' : 'Remote_Node'}
+              </span>
+              <div className={`max-w-[85%] px-4 py-3 rounded-2xl font-mono text-sm leading-relaxed border ${
+                chat.role === 'user' 
+                  ? 'bg-white/[0.02] border-white/10 text-slate-400 rounded-tr-none' 
+                  : 'bg-indigo-500/[0.03] border-indigo-500/10 text-slate-200 rounded-tl-none'
+              }`}>
+                {chat.content}
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          ))}
+
+          {/* 2. RENDER ACTIVE STREAMING (Temporary Bubble) */}
+          {chatLoading && (
+            <div className="flex flex-col items-start gap-2">
+              <span className="text-[8px] font-mono uppercase tracking-widest text-indigo-400 animate-pulse">
+                Nexus_Stream_Active...
+              </span>
+              
+              {/* Reasoning Block for "Thoughts" */}
+              <ThoughtBlock reasoning={reasoning} />
+
+              {/* Real-time Content Bubble */}
+              {chatResponse && (
+                <div className="max-w-[85%] px-4 py-3 rounded-2xl font-mono text-sm leading-relaxed border bg-indigo-500/[0.08] border-indigo-500/30 text-indigo-100 rounded-tl-none shadow-[0_0_15px_rgba(99,102,241,0.05)]">
+                  {chatResponse}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Empty State */}
+          {!chatLoading && chatHistory.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full py-20 opacity-20 text-center">
+              <Terminal className="w-8 h-8 mb-4" />
+              <p className="font-mono text-xs uppercase tracking-widest">Awaiting Sovereign Instruction...</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Command Input Area */}
-      <div className="relative z-20 space-y-4">
+      {/* Input Console */}
+      <div className="relative z-20">
         <div className="flex gap-3">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder={quotaExceeded ? "CREDITS_EXHAUSTED" : "Execute command..."}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !chatLoading && onExecute()}
-              disabled={quotaExceeded}
-              className="w-full bg-[#0A0A0A] border border-white/10 p-4 rounded-xl font-mono text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-indigo-500/50 transition-all disabled:opacity-50"
-            />
-          </div>
+          <input
+            type="text"
+            placeholder={quotaExceeded ? "CREDITS_EXHAUSTED" : "Execute command..."}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !chatLoading && onExecute()}
+            disabled={chatLoading || quotaExceeded}
+            className="flex-1 bg-[#0A0A0A] border border-white/10 p-4 rounded-xl font-mono text-sm text-white focus:border-indigo-500/50 outline-none transition-all disabled:opacity-50"
+          />
           <button
             onClick={onExecute}
             disabled={chatLoading || quotaExceeded || !message.trim()}
-            className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 text-white px-8 rounded-xl transition-all active:scale-95 flex items-center justify-center group"
+            className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 text-white px-8 rounded-xl transition-all active:scale-95 flex items-center justify-center"
           >
-            {chatLoading ? <Activity className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+            {chatLoading ? <Activity className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
-
-        <div className="flex items-center justify-between px-1">
+        
+        <div className="mt-4 flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-3 h-3 text-emerald-500/50" />
             <span className="text-[8px] font-mono text-white/20 uppercase tracking-[0.2em]">
-              Node: LPU-Edge-01 • Context_Window: 4096_Stream
+              Sovereign Node: Phagwara-Edge-01 • Context_Safe
             </span>
           </div>
-          <div className="text-[8px] font-mono text-white/10">Phagwara_Node_Active</div>
         </div>
       </div>
     </div>
-  )
+  );
 }

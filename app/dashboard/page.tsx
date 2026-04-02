@@ -285,8 +285,6 @@
 
 
 
-
-
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
@@ -327,7 +325,6 @@ export default function Dashboard() {
   const [upgradeError, setUpgradeError] = useState(false)
   const [telemetry, setTelemetry] = useState<TelemetryData | undefined>(undefined)
   
-  // 🧠 MEMORY ENGINE: Stores the conversation history for the Go Backend
   const [chatHistory, setChatHistory] = useState([
     { role: "assistant", content: "Welcome to Nexus Gateway. How can I assist your research today?" }
   ]);
@@ -344,7 +341,7 @@ export default function Dashboard() {
 
   const backendUrl = "https://nexusgateway-production.up.railway.app"
 
-  // --- 2. DATA FETCHING (POLLING) ---
+  // --- 2. DATA FETCHING ---
   const fetchStats = useCallback(async () => {
     try {
       const res = await fetch(`${backendUrl}/api/stats`)
@@ -414,29 +411,24 @@ export default function Dashboard() {
 
   // --- 🚀 4. CHAT EXECUTION (THE MEMORY ENGINE) ---
   const handleChat = async () => {
-    if (!apiKey) return alert("Enter Nexus API Key first")
-    if (!message) return;
+    if (!apiKey) return alert("Enter Nexus API Key first");
+    if (!message.trim()) return;
 
-    const currentPrompt = message;
-    setMessage(""); // Clear input field immediately
-    
-    // 1. Prepare User Message
-    const newUserMsg = { role: "user", content: currentPrompt };
+    const userContent = message.trim();
+    setMessage(""); // UI: Clear input immediately
 
-    // 2. Reset UI for new stream
-    setChatLoading(true)
-    setChatResponse("")
-    setReasoning("")
-    setQuotaExceeded(false)
-    setTelemetry(undefined)
+    // 1. Create the update locally first to ensure snapshot accuracy
+    const newUserMsg = { role: "user", content: userContent };
+    const updatedHistory = [...chatHistory, newUserMsg];
     
-    // 🔥 FIX: Capture history synchronously using a local variable
-    let fullHistorySnapshot: any[] = [];
-    setChatHistory((prev) => {
-      const updated = [...prev, newUserMsg];
-      fullHistorySnapshot = updated; 
-      return updated;
-    });
+    // 2. Sync UI History
+    setChatHistory(updatedHistory);
+
+    // 3. Reset Streaming States
+    setChatLoading(true);
+    setChatResponse("");
+    setReasoning("");
+    setTelemetry(undefined);
 
     try {
       const res = await fetch(`${backendUrl}/api/chat/stream`, {
@@ -448,59 +440,72 @@ export default function Dashboard() {
         },
         body: JSON.stringify({ 
           model: model, 
-          messages: fullHistorySnapshot // Send full history to Go Backend
+          messages: updatedHistory // 👈 Guaranteed absolute current history
         }),
-      })
+      });
 
-      if (res.status === 402) {
-        setQuotaExceeded(true);
-        setChatLoading(false);
-        return;
-      }
+      if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
       const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      let streamBuffer = ""; 
+      if (!reader) throw new Error("Stream reader unavailable");
 
-      while (reader) {
+      const decoder = new TextDecoder();
+      let assistantBuffer = ""; 
+
+      while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-        const lines = decoder.decode(value).split("\n");
-        
-        for (const line of lines) {
-          if (line.startsWith("data: ") && !line.includes("[DONE]")) {
-            try {
-              const data = JSON.parse(line.replace("data: ", ""));
-              
-              // Handle Telemetry and Reasoning chunks
-              if (data.telemetry) setTelemetry(data.telemetry);
-              if (data.choices?.[0]?.delta?.reasoning_content) {
-                setReasoning((prev) => prev + data.choices[0].delta.reasoning_content);
-              }
 
-              const content = data.choices?.[0]?.delta?.content;
+        const chunk = decoder.decode(value, { stream: true });
+        
+        // Split by lines to handle SSE format
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          const cleanLine = line.trim();
+          if (!cleanLine || cleanLine.includes("[DONE]")) continue;
+
+          if (cleanLine.startsWith("data: ")) {
+            try {
+              // Extract JSON after 'data: '
+              const data = JSON.parse(cleanLine.substring(6));
+              
+              if (data.telemetry) setTelemetry(data.telemetry);
+
+              // Support multiple potential JSON structures from the Go backend
+              const content = 
+                data.choices?.[0]?.delta?.content || 
+                data.choices?.[0]?.text || 
+                data.content || 
+                "";
+
               if (content) {
-                streamBuffer += content;
+                assistantBuffer += content;
+                // Live update the temporary response bubble
                 setChatResponse((prev) => prev + content);
               }
-            } catch (e) {}
+            } catch (e) {
+              // Ignore partial JSON or telemetry noise
+            }
           }
         }
       }
 
-      // 🔥 FIX: Save Assistant response using functional update to prevent state loss
-      if (streamBuffer) {
-        setChatHistory((prev) => [...prev, { role: "assistant", content: streamBuffer }]);
+      // 💾 CRITICAL: Finalize the conversation in history
+      if (assistantBuffer) {
+        setChatHistory((prev) => [...prev, { role: "assistant", content: assistantBuffer }]);
       }
       
       fetchStats();
       fetchUsage();
-    } catch {
-      setChatResponse("Nexus Gateway: Connection Failed.");
+    } catch (err) {
+      console.error("Nexus Stream Error:", err);
+      setChatResponse("Nexus Gateway: Connection Failed. Verify Railway deployment.");
     } finally {
       setChatLoading(false);
+      setChatResponse(""); // Hides temporary bubble so History bubble takes over
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-indigo-500/30">
@@ -516,7 +521,8 @@ export default function Dashboard() {
             <AccessProvisioning
               email={email} setEmail={setEmail}
               apiKey={apiKey} loading={loading}
-              onRegister={handleRegister} usage={usage}
+              onRegister={handleRegister}
+              usage={usage}
             />
             <InferenceConfig
               providerKey={providerKey} setProviderKey={setProviderKey}
@@ -525,10 +531,15 @@ export default function Dashboard() {
           </div>
           <Playground
             message={message} setMessage={setMessage}
-            chatResponse={chatResponse} reasoning={reasoning}
-            telemetry={telemetry} chatLoading={chatLoading}
-            onExecute={handleChat} quotaExceeded={quotaExceeded}
-            onUpgrade={handleUpgrade} upgradeError={upgradeError}
+            chatResponse={chatResponse} 
+            chatHistory={chatHistory} 
+            reasoning={reasoning}
+            telemetry={telemetry} 
+            chatLoading={chatLoading}
+            onExecute={handleChat} 
+            quotaExceeded={quotaExceeded}
+            onUpgrade={handleUpgrade}
+            upgradeError={upgradeError}
           />
         </div>
       </div>
