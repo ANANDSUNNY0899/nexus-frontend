@@ -356,18 +356,35 @@ export default function Dashboard() {
       })
     } catch (err) { console.error("Stats fetch failed", err) }
   }, [backendUrl])
-
-  const fetchUsage = useCallback(async () => {
+const fetchUsage = useCallback(async () => {
     if (!apiKey) return;
     try {
-      const res = await fetch(`${backendUrl}/api/user/usage`, {
-        headers: { "Authorization": `Bearer ${apiKey}` }
+      // 🛰️ Using the timestamp (?t=) is enough to break cache without 
+      // needing the 'Cache-Control' header that is causing the CORS error.
+      const res = await fetch(`${backendUrl}/api/user/usage?t=${Date.now()}`, {
+        method: "GET",
+        headers: { 
+          "Authorization": `Bearer ${apiKey}`
+          // ❌ REMOVED Cache-Control and Pragma to fix CORS error
+        }
       });
+
+      if (!res.ok) throw new Error(`Quota Fetch Error: ${res.status}`);
+
       const data = await res.json();
-      setUsage({ used: data.used, limit: data.limit });
-    } catch (err) { console.error("Usage fetch failed", err); }
+      
+      // Ensure we map the correct DB column name
+      setUsage({ 
+        used: data.requests_used ?? data.used ?? 0, 
+        limit: data.request_limit ?? data.limit ?? 100 
+      });
+
+    } catch (err) { 
+      console.error("📊 Nexus Usage Sync Failed:", err); 
+    }
   }, [apiKey, backendUrl]);
 
+  
   useEffect(() => {
     fetchStats();
     if (apiKey) fetchUsage();
@@ -415,20 +432,19 @@ export default function Dashboard() {
     if (!message.trim()) return;
 
     const userContent = message.trim();
-    setMessage(""); // UI: Clear input immediately
+    setMessage(""); // Immediate UI feedback
 
-    // 1. Create the update locally first to ensure snapshot accuracy
+    // 1. Snapshot generation for absolute context accuracy
     const newUserMsg = { role: "user", content: userContent };
     const updatedHistory = [...chatHistory, newUserMsg];
     
-    // 2. Sync UI History
+    // 2. Local State Sync
     setChatHistory(updatedHistory);
-
-    // 3. Reset Streaming States
     setChatLoading(true);
     setChatResponse("");
     setReasoning("");
     setTelemetry(undefined);
+    setQuotaExceeded(false); // Reset quota state for new attempt
 
     try {
       const res = await fetch(`${backendUrl}/api/chat/stream`, {
@@ -440,9 +456,16 @@ export default function Dashboard() {
         },
         body: JSON.stringify({ 
           model: model, 
-          messages: updatedHistory // 👈 Guaranteed absolute current history
+          messages: updatedHistory 
         }),
       });
+
+      // 🛡️ GOVERNANCE CHECK: Catch Quota Exhaustion immediately
+      if (res.status === 402) {
+        setQuotaExceeded(true);
+        setChatLoading(false);
+        return; 
+      }
 
       if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
@@ -452,13 +475,12 @@ export default function Dashboard() {
       const decoder = new TextDecoder();
       let assistantBuffer = ""; 
 
+      // 🌊 STREAM PROCESSING ENGINE
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        
-        // Split by lines to handle SSE format
         const lines = chunk.split("\n");
 
         for (const line of lines) {
@@ -467,43 +489,52 @@ export default function Dashboard() {
 
           if (cleanLine.startsWith("data: ")) {
             try {
-              // Extract JSON after 'data: '
               const data = JSON.parse(cleanLine.substring(6));
               
               if (data.telemetry) setTelemetry(data.telemetry);
 
-              // Support multiple potential JSON structures from the Go backend
+              // Extract reasoning/thoughts if present (DeepSeek compatibility)
+              if (data.choices?.[0]?.delta?.reasoning_content) {
+                setReasoning((prev) => prev + data.choices[0].delta.reasoning_content);
+              }
+
               const content = 
                 data.choices?.[0]?.delta?.content || 
                 data.choices?.[0]?.text || 
-                data.content || 
                 "";
 
               if (content) {
                 assistantBuffer += content;
-                // Live update the temporary response bubble
                 setChatResponse((prev) => prev + content);
               }
             } catch (e) {
-              // Ignore partial JSON or telemetry noise
+              // Ignore malformed chunks
             }
           }
         }
       }
 
-      // 💾 CRITICAL: Finalize the conversation in history
+      // 💾 FINALIZATION: Commit AI response to permanent history
       if (assistantBuffer) {
         setChatHistory((prev) => [...prev, { role: "assistant", content: assistantBuffer }]);
       }
       
+      // Initial stats pull
       fetchStats();
-      fetchUsage();
+      fetchUsage(); 
+
     } catch (err) {
       console.error("Nexus Stream Error:", err);
       setChatResponse("Nexus Gateway: Connection Failed. Verify Railway deployment.");
     } finally {
       setChatLoading(false);
-      setChatResponse(""); // Hides temporary bubble so History bubble takes over
+      setChatResponse(""); // Clear the temporary "Remote_Node" stream bubble
+
+      // 🛰️ SOVEREIGN SYNC: 500ms delay to allow Postgres/Redis to finish the 'requests_used' update
+      setTimeout(() => {
+        fetchUsage();
+        fetchStats();
+      }, 500);
     }
   };
 

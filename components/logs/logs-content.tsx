@@ -41,7 +41,9 @@ export function LogsContent() {
   const [copiedId, setCopiedId] = useState(false);
   const [copiedJSON, setCopiedJSON] = useState(false);
 
-  const backendUrl = "https://nexusgateway-production.up.railway.app";
+  //const backendUrl = "https://nexusgateway-production.up.railway.app";
+  const backendUrl = "https://nexusgateway.onrender.com/";
+  
 
   const fetchLogs = async () => {
     if (!apiKey) return;

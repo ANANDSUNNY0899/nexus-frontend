@@ -23,7 +23,8 @@ export default function Dashboard() {
   const [providerKey, setProviderKey] = useState("");
   const [stats, setStats] = useState({ total: 0, hits: 0, savings: 0, latency: 0, tokens: 0, graph: [] });
 
-  const backendUrl = "https://nexusgateway-production.up.railway.app";
+  //const backendUrl = "https://nexusgateway-production.up.railway.app";
+  const backendUrl = "https://nexusgateway.onrender.com/";
 
   // --- 1. FETCH ACTUAL TELEMETRY ---
   const fetchStats = useCallback(async () => {
