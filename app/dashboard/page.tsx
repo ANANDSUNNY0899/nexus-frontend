@@ -339,7 +339,7 @@ export default function Dashboard() {
   })
   const [usage, setUsage] = useState({ used: 0, limit: 100 });
 
-  const backendUrl = "https://nexusgateway-production.up.railway.app"
+  const backendUrl = "https://nexusgateway.onrender.com/"
 
   // --- 2. DATA FETCHING ---
   const fetchStats = useCallback(async () => {
